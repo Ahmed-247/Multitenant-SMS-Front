@@ -163,7 +163,7 @@ const Login: React.FC = () => {
             </button>
           </div>
 
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-700" />
@@ -176,7 +176,7 @@ const Login: React.FC = () => {
               <p><strong className="text-white">Super Admin:</strong> superadmin@schoolsystem.com / admin123</p>
               <p><strong className="text-white">School Admin:</strong> schooladmin@example.com / school123</p>
             </div>
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

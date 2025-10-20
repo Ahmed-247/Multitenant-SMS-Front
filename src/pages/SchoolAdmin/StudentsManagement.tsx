@@ -8,7 +8,6 @@ import {
   EyeIcon,
   UserGroupIcon,
   AcademicCapIcon,
-  KeyIcon
 } from '@heroicons/react/24/outline'
 import studentService, { type Student } from '../../services/schoolAdmin/student.service'
 import { handleError } from '../../utils/errorUtils'
@@ -37,7 +36,6 @@ const StudentsManagement: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
-  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState<StudentUI | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -45,7 +43,7 @@ const StudentsManagement: React.FC = () => {
 
   // Prevent body scrolling when modals are open
   useEffect(() => {
-    if (showAddModal || showEditModal || showViewModal || showPasswordModal) {
+    if (showAddModal || showEditModal || showViewModal) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
@@ -55,7 +53,7 @@ const StudentsManagement: React.FC = () => {
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [showAddModal, showEditModal, showViewModal, showPasswordModal])
+  }, [showAddModal, showEditModal, showViewModal])
 
   const [students, setStudents] = useState<StudentUI[]>([])
 
@@ -178,10 +176,7 @@ const StudentsManagement: React.FC = () => {
     }
   }
 
-  const handleResetPassword = (student: StudentUI) => {
-    setSelectedStudent(student)
-    setShowPasswordModal(true)
-  }
+  
 
   // const generateStudentId = () => {
   //   const lastId = students.length > 0 ? parseInt(students[students.length - 1].studentId.replace('STU', '')) : 0
@@ -260,9 +255,9 @@ const StudentsManagement: React.FC = () => {
           
           <div className="card">
             <div className="flex items-center">
-              <div className="p-3 bg-purple-600/20 rounded-xl">
+              {/* <div className="p-3 bg-purple-600/20 rounded-xl">
                 <KeyIcon className="h-6 w-6 text-purple-400" />
-              </div>
+              </div> */}
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-400 font-poppins">Adoption Rate</p>
                 <p className="text-2xl font-bold text-white font-poppins">
@@ -373,13 +368,7 @@ const StudentsManagement: React.FC = () => {
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
-                        <button
-                          onClick={() => handleResetPassword(student)}
-                          className="text-purple-400 hover:text-purple-300 transition-colors duration-200"
-                          title="Reset Password"
-                        >
-                          <KeyIcon className="h-4 w-4" />
-                        </button>
+                        
                         <button
                           onClick={() => handleDeleteStudent(student.id)}
                           className="text-red-400 hover:text-red-300 transition-colors duration-200"
@@ -866,73 +855,7 @@ const StudentsManagement: React.FC = () => {
           </div>
         )}
 
-        {/* Reset Password Modal */}
-        {showPasswordModal && selectedStudent && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" style={{margin: 0}}>
-            <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-6">Reset Student Password</h3>
-                <form 
-                  className="space-y-4"
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    const formData = new FormData(e.target as HTMLFormElement)
-                    const passwordData = {
-                      studentId: selectedStudent.studentId,
-                      studentName: `${selectedStudent.firstName} ${selectedStudent.lastName}`,
-                      newPassword: formData.get('newPassword'),
-                      confirmPassword: formData.get('confirmPassword')
-                    }
-                    console.log('Password Reset Data:', passwordData)
-                    setShowPasswordModal(false)
-                  }}
-                >
-                  <div className="bg-slate-700 p-4 rounded-lg">
-                    <h4 className="font-medium text-white">
-                      {selectedStudent.firstName} {selectedStudent.lastName}
-                    </h4>
-                    <p className="text-sm text-slate-300">ID: {selectedStudent.studentId}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">New Password</label>
-                    <input 
-                      type="password" 
-                      name="newPassword"
-                      className="input-field" 
-                      placeholder="Enter new password" 
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
-                    <input 
-                      type="password" 
-                      name="confirmPassword"
-                      className="input-field" 
-                      placeholder="Confirm new password" 
-                      required
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end space-x-3 pt-6">
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswordModal(false)}
-                      className="btn-secondary"
-                    >
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn-primary">
-                      Reset Password
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
+        
       </div>
     </Layout>
   )
