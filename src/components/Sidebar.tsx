@@ -29,11 +29,11 @@ const Sidebar: React.FC = () => {
   ]
 
   const schoolAdminNavItems = [
-    { name: 'Dashboard', href: '/school-admin', icon: HomeIcon },
-    { name: 'Students', href: '/school-admin/students', icon: UserGroupIcon },
-    { name: 'Profile', href: '/school-admin/profile', icon: CogIcon },
-    { name: 'Billing', href: '/school-admin/billing', icon: CreditCardIcon },
-    { name: 'Content', href: '/school-admin/content', icon: DocumentTextIcon },
+    { name: 'Tableau de Bord', href: '/school-admin', icon: HomeIcon },
+    { name: 'Étudiants', href: '/school-admin/students', icon: UserGroupIcon },
+    { name: 'Profil', href: '/school-admin/profile', icon: CogIcon },
+    { name: 'Facturation', href: '/school-admin/billing', icon: CreditCardIcon },
+    { name: 'Contenu', href: '/school-admin/content', icon: DocumentTextIcon },
   ]
 
   const navItems = user?.role === 'superadmin' ? superAdminNavItems : schoolAdminNavItems
@@ -46,8 +46,8 @@ const Sidebar: React.FC = () => {
             <AcademicCapIcon className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white font-poppins">School System</h2>
-            <p className="text-xs text-slate-400 font-poppins">Management Platform</p>
+            <h2 className="text-lg font-semibold text-white font-poppins">Système Scolaire</h2>
+            <p className="text-xs text-slate-400 font-poppins">Plateforme de Gestion</p>
           </div>
         </div>
       </div>

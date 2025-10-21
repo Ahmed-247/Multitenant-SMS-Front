@@ -3,8 +3,7 @@ import Layout from '../../components/Layout'
 import {
   MagnifyingGlassIcon,
   DocumentTextIcon,
-  VideoCameraIcon,
-  PhotoIcon
+  VideoCameraIcon
 } from '@heroicons/react/24/outline'
 
 interface ContentItem {
