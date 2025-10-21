@@ -189,8 +189,8 @@ const StudentsManagement: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white font-poppins">Students Management</h1>
-            <p className="text-slate-400 mt-2 font-poppins">Manage student enrollment and access</p>
+            <h1 className="text-3xl font-bold text-white font-poppins">Gestion des Étudiants</h1>
+            <p className="text-slate-400 mt-2 font-poppins">Gérez l'inscription et l'accès des étudiants</p>
           </div>
           <button
             onClick={() => {
@@ -200,7 +200,7 @@ const StudentsManagement: React.FC = () => {
             className="btn-primary flex items-center space-x-2"
           >
             <PlusIcon className="h-5 w-5" />
-            <span>Add Student </span>
+            <span>Ajouter un Étudiant </span>
           </button>
         </div>
 
@@ -212,7 +212,7 @@ const StudentsManagement: React.FC = () => {
               onClick={() => setError('')}
               className="text-xs text-red-300 hover:text-red-200 mt-1"
             >
-              Dismiss
+              Ignorer
             </button>
           </div>
         )}
@@ -222,7 +222,7 @@ const StudentsManagement: React.FC = () => {
           <div className="card">
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-slate-400">Loading students...</span>
+              <span className="ml-3 text-slate-400">Chargement des étudiants...</span>
             </div>
           </div>
         )}
@@ -235,7 +235,7 @@ const StudentsManagement: React.FC = () => {
                 <UserGroupIcon className="h-6 w-6 text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Total Students</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Total des Étudiants</p>
                 <p className="text-2xl font-bold text-white font-poppins">{totalStudents}</p>
               </div>
             </div>
@@ -247,7 +247,7 @@ const StudentsManagement: React.FC = () => {
                 <AcademicCapIcon className="h-6 w-6 text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Active Students</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Étudiants Actifs</p>
                 <p className="text-2xl font-bold text-white font-poppins">{activeStudents}</p>
               </div>
             </div>
@@ -259,7 +259,7 @@ const StudentsManagement: React.FC = () => {
                 <KeyIcon className="h-6 w-6 text-purple-400" />
               </div> */}
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Adoption Rate</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Taux d'Adoption</p>
                 <p className="text-2xl font-bold text-white font-poppins">
                   {totalStudents > 0 ? Math.round((activeStudents / totalStudents) * 100) : 0}%
                 </p>
@@ -550,7 +550,7 @@ const StudentsManagement: React.FC = () => {
                           <span>Creating...</span>
                         </div>
                       ) : (
-                        'Add Student'
+                        'Ajouter un Étudiant'
                       )}
                     </button>
                   </div>

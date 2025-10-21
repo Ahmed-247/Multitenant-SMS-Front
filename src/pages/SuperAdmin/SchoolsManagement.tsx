@@ -5,7 +5,8 @@ import {
   MagnifyingGlassIcon,
   PencilIcon,
   TrashIcon,
-  EyeIcon
+  EyeIcon,
+  PowerIcon
 } from '@heroicons/react/24/outline'
 import schoolService, { School, CreateSchoolRequest } from '../../services/SuperAdmin/school.service'
 
@@ -28,6 +29,7 @@ interface SchoolUI {
 
 const SchoolsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -74,7 +76,7 @@ const SchoolsManagement: React.FC = () => {
           activeStudents: 0, // Mock data - would need separate API
           studentLimit: school.StudentLimit || 0,
           plan: 'Standard', // Mock data - would need separate API
-          status: 'Active' as const, // Mock data - would need separate API
+          status: school.SchoolStatus ? 'Active' : 'InActive',
           createdAt: new Date().toISOString().split('T')[0] // Mock data
         }))
         setSchools(transformedSchools)
@@ -95,9 +97,10 @@ const SchoolsManagement: React.FC = () => {
   }, [])
 
   const filteredSchools = schools.filter(school =>
-    school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     school.adminName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    school.email.toLowerCase().includes(searchTerm.toLowerCase())
+    school.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (selectedStatus === '' || school.status === selectedStatus)
   )
 
   const handleEditSchool = (school: SchoolUI) => {
@@ -161,6 +164,29 @@ const SchoolsManagement: React.FC = () => {
     }
   }
 
+  const handleToggleStatus = async (schoolId: string) => {
+    try {
+      setLoading(true)
+      const response = await schoolService.toggleSchoolStatus(parseInt(schoolId))
+      
+      if (response.success) {
+        // Update the school status in the local state
+        setSchools(schools.map(school => 
+          school.id === schoolId 
+            ? { ...school, status: response.data.schoolStatus ? 'Active' : 'InActive' }
+            : school
+        ))
+      } else {
+        setError('Failed to toggle school status')
+      }
+    } catch (error) {
+      console.error('Error toggling school status:', error)
+      setError('Failed to toggle school status')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active':
@@ -217,7 +243,11 @@ const SchoolsManagement: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select className="input-field w-48">
+            <select 
+              className="input-field w-48"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
               <option value="">All Status</option>
               <option value="Active">Active</option>
               <option value="InActive">InActive</option>
@@ -306,6 +336,13 @@ const SchoolsManagement: React.FC = () => {
                           title="View Details"
                         >
                           <EyeIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(school.id)}
+                          className={`${school.status === 'Active' ? 'text-yellow-400 hover:text-yellow-300' : 'text-blue-400 hover:text-blue-300'} transition-colors duration-200`}
+                          title={school.status === 'Active' ? 'Deactivate School' : 'Activate School'}
+                        >
+                          <PowerIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteSchool(school.id)}

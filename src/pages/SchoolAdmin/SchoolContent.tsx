@@ -10,7 +10,7 @@ import {
 interface ContentItem {
   id: string
   title: string
-  type: 'Document' | 'Video' | 'Image' | 'Audio'
+  type: 'Audio' | 'Video' | 'PDF' | 'Quiz' | 'Repository'
   section: string
   grade: string
   subject: string
@@ -27,41 +27,41 @@ const SchoolContent: React.FC = () => {
   const [selectedGrade, setSelectedGrade] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
 
-  // Mock data - replace with actual API calls
+  // Données de test - remplacer par des appels API réels
   const [content] = useState<ContentItem[]>([
     {
       id: '1',
-      title: 'French 6th Year - Basic Grammar',
-      type: 'Document',
-      section: 'Primary',
-      grade: '6th Year',
-      subject: 'French',
+      title: 'Français 6ème Année - Grammaire de Base',
+      type: 'PDF',
+      section: 'Primaire',
+      grade: '6ème Année',
+      subject: 'Français',
       size: '2.5 MB',
       uploadDate: '2024-10-01',
       status: 'Available',
       downloads: 45,
-      assignedSchools: ['Greenwood High', 'Sunshine Elementary']
+      assignedSchools: ['Lycée Vert', 'École du Soleil']
     },
     {
       id: '2',
-      title: 'Written Calculation 6th Year - Addition and Subtraction',
+      title: 'Calcul écrit 6ème Année - Addition et Soustraction',
       type: 'Video',
-      section: 'Primary',
-      grade: '6th Year',
-      subject: 'Written Calculation',
+      section: 'Primaire',
+      grade: '6ème Année',
+      subject: 'Calcul écrit',
       size: '15.2 MB',
       uploadDate: '2024-10-02',
       status: 'Available',
       downloads: 32,
-      assignedSchools: ['Greenwood High', 'Riverside Academy']
+      assignedSchools: ['Lycée Vert', 'Académie Riverside']
     },
     {
       id: '3',
-      title: 'Mathematics 10th Year - Algebra Basics',
-      type: 'Document',
-      section: 'Middle School',
-      grade: '10th Year',
-      subject: 'Mathematics',
+      title: 'Mathématiques 10ème Année - Bases de l\'Algèbre',
+      type: 'Quiz',
+      section: 'Collège',
+      grade: '10ème Année',
+      subject: 'Mathématiques',
       size: '1.8 MB',
       uploadDate: '2024-10-03',
       status: 'Processing',
@@ -70,130 +70,130 @@ const SchoolContent: React.FC = () => {
     },
     {
       id: '4',
-      title: 'Physics TSE - Mechanics and Motion',
-      type: 'Video',
-      section: 'High School',
+      title: 'Physique TSE - Mécanique et Mouvement',
+      type: 'Audio',
+      section: 'Lycée',
       grade: 'TSE',
-      subject: 'Physics',
+      subject: 'Physique',
       size: '25.3 MB',
       uploadDate: '2024-10-04',
       status: 'Available',
       downloads: 18,
-      assignedSchools: ['Technical High School']
+      assignedSchools: ['Lycée Technique']
     },
     {
       id: '5',
-      title: 'Economics TSM - Market Principles',
-      type: 'Document',
-      section: 'High School',
+      title: 'Économie TSM - Principes du Marché',
+      type: 'Repository',
+      section: 'Lycée',
       grade: 'TSM',
-      subject: 'Economics',
+      subject: 'Économie',
       size: '3.2 MB',
       uploadDate: '2024-10-05',
       status: 'Available',
       downloads: 12,
-      assignedSchools: ['Business Academy']
+      assignedSchools: ['Académie des Affaires']
     },
     {
       id: '6',
-      title: 'History TSS - World Wars',
-      type: 'Document',
-      section: 'High School',
+      title: 'Histoire TSS - Guerres Mondiales',
+      type: 'PDF',
+      section: 'Lycée',
       grade: 'TSS',
-      subject: 'History',
+      subject: 'Histoire',
       size: '4.1 MB',
       uploadDate: '2024-10-06',
       status: 'Available',
       downloads: 8,
-      assignedSchools: ['Social Sciences High']
+      assignedSchools: ['Lycée des Sciences Sociales']
     }
   ])
 
-  // Educational structure based on the provided image
+  // Structure éducative française basée sur l'image
   const sections = [
-    { value: 'Primary', label: 'Primary' },
-    { value: 'Middle School', label: 'Middle School' },
-    { value: 'High School', label: 'High School' }
+    { value: 'Primaire', label: 'Primaire' },
+    { value: 'Collège', label: 'Collège' },
+    { value: 'Lycée', label: 'Lycée' }
   ]
 
   // Grades based on sections
   const getGradesForSection = (section: string) => {
     switch (section) {
-      case 'Primary':
+      case 'Primaire':
         return [
-          { value: '6th Year', label: '6th Year' }
+          { value: '6ème Année', label: '6ème Année' }
         ]
-      case 'Middle School':
+      case 'Collège':
         return [
-          { value: '10th Year', label: '10th Year' }
+          { value: '10ème Année', label: '10ème Année' }
         ]
-      case 'High School':
+      case 'Lycée':
         return [
-          { value: 'TSE', label: 'TSE (Technical Sciences and Engineering)' },
-          { value: 'TSM', label: 'TSM (Technical Sciences and Management)' },
-          { value: 'TSS', label: 'TSS (Technical Sciences and Social Sciences)' }
+          { value: 'TSE', label: 'TSE' },
+          { value: 'TSM', label: 'TSM' },
+          { value: 'TSS', label: 'TSS' }
         ]
       default:
         return []
     }
   }
 
-  // Subjects based on sections and grades
+  // Matières basées sur les sections et niveaux
   const getSubjectsForSectionAndGrade = (section: string, grade: string) => {
-    if (section === 'Primary' && grade === '6th Year') {
+    if (section === 'Primaire' && grade === '6ème Année') {
       return [
-        'French',
-        'Written Calculation',
-        'Observational Sciences',
-        'History',
-        'Geography',
-        'ECM (Civic and Moral Education)'
+        'Français',
+        'Calcul écrit',
+        'Sciences d\'observations',
+        'Histoire',
+        'Géographie',
+        'ECM'
       ]
     }
     
-    if (section === 'Middle School' && grade === '10th Year') {
+    if (section === 'Collège' && grade === '10ème Année') {
       return [
-        'Mathematics',
-        'Physics',
-        'Chemistry',
-        'History',
-        'Geography',
-        'Biology',
-        'French',
-        'ECM (Civic and Moral Education)'
+        'Mathématiques',
+        'Physique',
+        'Chimie',
+        'Histoire',
+        'Géographie',
+        'Biologie',
+        'Français',
+        'ECM'
       ]
     }
     
-    if (section === 'High School') {
+    if (section === 'Lycée') {
       const commonSubjects = [
-        'Mathematics',
-        'Philosophy',
-        'French',
-        'English'
+        'Mathématiques',
+        'Philosophie',
+        'Français',
+        'Anglais'
       ]
       
       switch (grade) {
         case 'TSE':
           return [
             ...commonSubjects,
-            'Physics',
-            'Chemistry',
-            'Biology',
-            'Geology'
+            'Physique',
+            'Chimie',
+            'Biologie',
+            'Géologie'
           ]
         case 'TSM':
           return [
             ...commonSubjects,
-            'Economics',
-            'Physics',
-            'Chemistry'
+            'Économie',
+            'Physique',
+            'Chimie'
           ]
         case 'TSS':
           return [
             ...commonSubjects,
-            'Economics',
-            'History',
-            'Geography'
+            'Économie',
+            'Histoire',
+            'Géographie'
           ]
         default:
           return commonSubjects
@@ -239,14 +239,16 @@ const SchoolContent: React.FC = () => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'Document':
+      case 'PDF':
         return <DocumentTextIcon className="h-5 w-5 text-blue-600" />
       case 'Video':
         return <VideoCameraIcon className="h-5 w-5 text-red-600" />
-      case 'Image':
-        return <PhotoIcon className="h-5 w-5 text-green-600" />
       case 'Audio':
         return <div className="h-5 w-5 bg-purple-600 rounded"></div>
+      case 'Quiz':
+        return <div className="h-5 w-5 bg-yellow-600 rounded"></div>
+      case 'Repository':
+        return <div className="h-5 w-5 bg-green-600 rounded"></div>
       default:
         return <DocumentTextIcon className="h-5 w-5 text-gray-600" />
     }
@@ -258,8 +260,8 @@ const SchoolContent: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-white font-poppins">Content Library</h1>
-          <p className="text-slate-400 mt-2 font-poppins">Access educational content assigned to your school</p>
+            <h1 className="text-3xl font-bold text-white font-poppins">Bibliothèque de Contenu</h1>
+          <p className="text-slate-400 mt-2 font-poppins">Accédez au contenu éducatif assigné à votre école</p>
         </div>
 
         {/* Search and Filters */}
@@ -269,7 +271,7 @@ const SchoolContent: React.FC = () => {
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search content..."
+                placeholder="Rechercher du contenu..."
                 className="input-field pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -280,7 +282,7 @@ const SchoolContent: React.FC = () => {
               value={selectedSection}
               onChange={(e) => handleSectionChange(e.target.value)}
             >
-              <option value="">All Sections</option>
+              <option value="">Toutes les Sections</option>
               {sections.map(section => (
                 <option key={section.value} value={section.value}>{section.label}</option>
               ))}
@@ -291,7 +293,7 @@ const SchoolContent: React.FC = () => {
               onChange={(e) => handleGradeChange(e.target.value)}
               disabled={!selectedSection}
             >
-              <option value="">All Grades</option>
+              <option value="">Tous les Niveaux</option>
               {availableGrades.map(grade => (
                 <option key={grade.value} value={grade.value}>{grade.label}</option>
               ))}
@@ -302,7 +304,7 @@ const SchoolContent: React.FC = () => {
               onChange={(e) => setSelectedSubject(e.target.value)}
               disabled={!selectedGrade}
             >
-              <option value="">All Subjects</option>
+              <option value="">Toutes les Matières</option>
               {availableSubjects.map(subject => (
                 <option key={subject} value={subject}>{subject}</option>
               ))}
@@ -311,7 +313,7 @@ const SchoolContent: React.FC = () => {
               className="btn-secondary"
               onClick={clearFilters}
             >
-              Clear Filters
+              Effacer les Filtres
             </button>
           </div>
         </div>
@@ -323,7 +325,7 @@ const SchoolContent: React.FC = () => {
               <thead className="bg-slate-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Content Title
+                    Titre du Contenu
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Type
@@ -332,10 +334,10 @@ const SchoolContent: React.FC = () => {
                     Section
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Grade
+                    Niveau
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Subject
+                    Matière
                   </th>
                 </tr>
               </thead>

@@ -103,14 +103,14 @@ const SchoolBilling: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white font-poppins">Billing & Subscription</h1>
-          <p className="text-slate-400 mt-2 font-poppins">Manage your school's subscription and payments</p>
+          <h1 className="text-3xl font-bold text-white font-poppins">Facturation et Abonnement</h1>
+          <p className="text-slate-400 mt-2 font-poppins">Gérez l'abonnement et les paiements de votre école</p>
         </div>
 
         {/* Current Subscription */}
         <div className="card">
           <div className="flex justify-between items-start mb-6">
-            <h2 className="text-xl font-semibold text-white font-poppins">Current Subscription</h2>
+            <h2 className="text-xl font-semibold text-white font-poppins">Abonnement Actuel</h2>
             <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
               subscriptionData.status === 'Active' 
                 ? 'bg-green-900/30 text-green-400 border border-green-500/30' 

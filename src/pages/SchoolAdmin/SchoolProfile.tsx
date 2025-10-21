@@ -122,8 +122,8 @@ const SchoolProfile: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white font-poppins">School Profile</h1>
-            <p className="text-slate-400 mt-2 font-poppins">Manage your school information and settings</p>
+            <h1 className="text-3xl font-bold text-white font-poppins">Profil de l'École</h1>
+            <p className="text-slate-400 mt-2 font-poppins">Gérez les informations et paramètres de votre école</p>
           </div>
           <button
             onClick={isEditing ? handleCancel : handleEdit}
@@ -131,7 +131,7 @@ const SchoolProfile: React.FC = () => {
             disabled={loading || saving}
           >
             <PencilIcon className="h-5 w-5" />
-            <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
+            <span>{isEditing ? 'Annuler' : 'Modifier le Profil'}</span>
           </button>
         </div>
 
@@ -143,7 +143,7 @@ const SchoolProfile: React.FC = () => {
               onClick={() => setError('')}
               className="text-xs text-red-300 hover:text-red-200 mt-1"
             >
-              Dismiss
+              Ignorer
             </button>
           </div>
         )}
@@ -153,7 +153,7 @@ const SchoolProfile: React.FC = () => {
           <div className="card">
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-slate-400">Loading school profile...</span>
+              <span className="ml-3 text-slate-400">Chargement du profil de l'école...</span>
             </div>
           </div>
         )}
@@ -193,11 +193,11 @@ const SchoolProfile: React.FC = () => {
                   <div className="bg-slate-700/50 p-6 rounded-xl border border-slate-600">
                     <h4 className="text-lg font-semibold text-white mb-4 font-poppins flex items-center">
                       <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
-                      Editable Information
+                      Informations Modifiables
                     </h4>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">School Name</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Nom de l'École</label>
                         {isEditing ? (
                           <input
                             type="text"
@@ -212,7 +212,7 @@ const SchoolProfile: React.FC = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Address</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Adresse</label>
                         {isEditing ? (
                           <textarea
                             className="input-field w-full h-24 resize-none bg-slate-600 border-slate-500 focus:border-blue-400 focus:ring-blue-400"
@@ -226,7 +226,7 @@ const SchoolProfile: React.FC = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Phone Number</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Numéro de Téléphone</label>
                         {isEditing ? (
                           <input
                             type="tel"
@@ -285,10 +285,10 @@ const SchoolProfile: React.FC = () => {
               {saving ? (
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Saving...</span>
+                  <span>Sauvegarde...</span>
                 </div>
               ) : (
-                'Save Changes'
+                'Sauvegarder les Modifications'
               )}
             </button>
           </div>

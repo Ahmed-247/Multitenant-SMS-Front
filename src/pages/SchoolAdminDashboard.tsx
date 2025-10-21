@@ -5,9 +5,14 @@ import {
   AcademicCapIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/outline'
+import schoolAdminDashboardService, { type SchoolAdminStats } from '../services/schoolAdmin/dashboard.service'
+import { handleError } from '../utils/errorUtils'
 
 const SchoolAdminDashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null)
+  const [stats, setStats] = useState<SchoolAdminStats | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
@@ -16,10 +21,34 @@ const SchoolAdminDashboard: React.FC = () => {
     }
   }, [])
 
-  // Mock data - replace with actual API calls
-  const stats = {
-    totalStudents: 150,
-    activeStudents: 125,
+  // Fetch school admin statistics
+  const fetchStats = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const response = await schoolAdminDashboardService.getSchoolAdminStats()
+      
+      if (response.success) {
+        setStats(response.data)
+      } else {
+        setError('Failed to fetch statistics')
+      }
+    } catch (error: any) {
+      setError(
+        handleError(error, 'Error fetching statistics', 'Failed to fetch statistics')
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load stats on component mount
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  // Mock data for content downloads (keeping as requested)
+  const mockStats = {
     contentDownloads: 450,
     adoptionRate: 83
   }
@@ -31,51 +60,77 @@ const SchoolAdminDashboard: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white font-poppins">School Dashboard</h1>
-          <p className="text-slate-400 mt-2 font-poppins">Welcome back, {user?.name}</p>
+          <h1 className="text-3xl font-bold text-white font-poppins">Tableau de Bord de l'École</h1>
+          <p className="text-slate-400 mt-2 font-poppins">Bon retour, {user?.name}</p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="rounded-xl bg-red-900/30 border border-red-500/30 p-4">
+            <div className="text-sm text-red-400">{error}</div>
+            <button
+              onClick={() => setError('')}
+              className="text-xs text-red-300 hover:text-red-200 mt-1"
+            >
+              Ignorer
+            </button>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="card">
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-slate-400">Chargement des statistiques...</span>
+            </div>
+          </div>
+        )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="card">
-            <div className="flex items-center">
-              <div className="p-3 bg-blue-600/20 rounded-xl">
-                <UserGroupIcon className="h-6 w-6 text-blue-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Total Students</p>
-                <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents}</p>
-                <p className="text-sm text-slate-400 font-poppins">Enrolled</p>
+        {!loading && stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-blue-600/20 rounded-xl">
+                  <UserGroupIcon className="h-6 w-6 text-blue-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Total des Étudiants</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Inscrits</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="card">
-            <div className="flex items-center">
-              <div className="p-3 bg-green-600/20 rounded-xl">
-                <AcademicCapIcon className="h-6 w-6 text-green-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Active Students</p>
-                <p className="text-2xl font-bold text-white font-poppins">{stats.activeStudents}</p>
-                <p className="text-sm text-slate-400 font-poppins">Currently active</p>
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-green-600/20 rounded-xl">
+                  <AcademicCapIcon className="h-6 w-6 text-green-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Étudiants Actifs</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{stats.activeStudents.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Actuellement actifs</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="card">
-            <div className="flex items-center">
-              <div className="p-3 bg-purple-600/20 rounded-xl">
-                <DocumentTextIcon className="h-6 w-6 text-purple-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Content Downloads</p>
-                <p className="text-2xl font-bold text-white font-poppins">{stats.contentDownloads}</p>
-                <p className="text-sm text-slate-400 font-poppins">Total downloads</p>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-purple-600/20 rounded-xl">
+                  <DocumentTextIcon className="h-6 w-6 text-purple-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Téléchargements de Contenu</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{mockStats.contentDownloads.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Total des téléchargements</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
 
 

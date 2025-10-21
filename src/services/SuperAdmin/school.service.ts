@@ -10,6 +10,7 @@ export interface School {
   SchoolPhone?: string;
   SchoolEmail?: string;
   StudentLimit?: number;
+  SchoolStatus?: boolean;
   users?: {
     UserId: number;
     UserName: string;
@@ -80,6 +81,11 @@ class SchoolService extends BaseRequestService {
   // Delete school
   deleteSchool(id: number): Promise<{ success: boolean; message: string; data: { SchoolId: number; SchoolName: string } }> {
     return this.delete(`${API_URL}/api/schools/${id}`);
+  }
+
+  // Toggle school status
+  toggleSchoolStatus(id: number): Promise<{ success: boolean; message: string; data: { schoolId: number; schoolName: string; schoolStatus: boolean } }> {
+    return this.patch(`${API_URL}/api/schools/${id}/toggle-status`);
   }
 }
 
