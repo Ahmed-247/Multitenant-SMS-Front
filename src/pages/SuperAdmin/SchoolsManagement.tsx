@@ -22,6 +22,8 @@ interface SchoolUI {
   totalStudents: number
   activeStudents: number
   studentLimit: number
+  paymentAmount: number
+  planExpiryDate: string
   plan: string
   status: 'Active' | 'InActive'
   createdAt: string
@@ -75,6 +77,8 @@ const SchoolsManagement: React.FC = () => {
           totalStudents: 0, // Mock data - would need separate API
           activeStudents: 0, // Mock data - would need separate API
           studentLimit: school.StudentLimit || 0,
+          paymentAmount: school.PaymentAmount || 0,
+          planExpiryDate: school.PlanExpiryDate || '',
           plan: 'Standard', // Mock data - would need separate API
           status: school.SchoolStatus ? 'Active' : 'InActive',
           createdAt: new Date().toISOString().split('T')[0] // Mock data
@@ -127,6 +131,8 @@ const SchoolsManagement: React.FC = () => {
           totalStudents: 0, // Mock data - would need separate API
           activeStudents: 0, // Mock data - would need separate API
           studentLimit: response.data.StudentLimit || 0,
+          paymentAmount: response.data.PaymentAmount || 0,
+          planExpiryDate: response.data.PlanExpiryDate || '',
           plan: 'Standard', // Mock data - would need separate API
           status: 'Active' as const, // Mock data - would need separate API
           createdAt: new Date().toISOString().split('T')[0] // Mock data
@@ -274,10 +280,10 @@ const SchoolsManagement: React.FC = () => {
                       Administrator
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                      Total Students
+                      Payment
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                      Plan
+                      Plan Expiry
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                       Status
@@ -306,15 +312,17 @@ const SchoolsManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white font-poppins">
-                           {school.studentLimit}
+                          ${school.paymentAmount.toLocaleString()}
                         </div>
                         <div className="text-sm text-slate-400 font-poppins">
-                         
+                          Student Limit: {school.studentLimit}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-poppins">
-                      {school.plan}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-white font-poppins">
+                        {school.planExpiryDate ? new Date(school.planExpiryDate).toLocaleDateString() : 'Not set'}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(school.status)}`}>
@@ -383,7 +391,9 @@ const SchoolsManagement: React.FC = () => {
                         AdminName: formData.get('adminName') as string,
                         AdminEmail: formData.get('adminEmail') as string,
                         AdminPassword: formData.get('adminPassword') as string,
-                        StudentLimit: parseInt(formData.get('studentLimit') as string)
+                        StudentLimit: parseInt(formData.get('studentLimit') as string),
+                        PaymentAmount: parseFloat(formData.get('paymentAmount') as string) || undefined,
+                        PlanExpiryDate: formData.get('planExpiryDate') as string || undefined
                       }
 
                       const response = await schoolService.createSchoolWithAdmin(schoolData)
@@ -494,11 +504,26 @@ const SchoolsManagement: React.FC = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan</label>
-                    <select name="plan" className="input-field" required>
-                      <option value="Standard">Standard</option>
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Payment Amount</label>
+                      <input
+                        type="number"
+                        name="paymentAmount"
+                        className="input-field"
+                        placeholder="Enter payment amount"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan Expiry Date</label>
+                      <input
+                        type="date"
+                        name="planExpiryDate"
+                        className="input-field"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex justify-end space-x-3 pt-6">
@@ -550,7 +575,9 @@ const SchoolsManagement: React.FC = () => {
                         SchoolAddress: formData.get('address') as string,
                         SchoolPhone: formData.get('phone') as string,
                         SchoolEmail: formData.get('email') as string,
-                        StudentLimit: parseInt(formData.get('studentLimit') as string)
+                        StudentLimit: parseInt(formData.get('studentLimit') as string),
+                        PaymentAmount: parseFloat(formData.get('paymentAmount') as string) || undefined,
+                        PlanExpiryDate: formData.get('planExpiryDate') as string || undefined
                       }
 
                       const response = await schoolService.updateSchool(parseInt(selectedSchool.id), schoolData)
@@ -632,6 +659,30 @@ const SchoolsManagement: React.FC = () => {
                     />
                   </div>
 
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Payment Amount</label>
+                      <input
+                        type="number"
+                        name="paymentAmount"
+                        className="input-field"
+                        placeholder="Enter payment amount"
+                        defaultValue={selectedSchool.paymentAmount}
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan Expiry Date</label>
+                      <input
+                        type="date"
+                        name="planExpiryDate"
+                        className="input-field"
+                        defaultValue={selectedSchool.planExpiryDate ? new Date(selectedSchool.planExpiryDate).toISOString().split('T')[0] : ''}
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex justify-end space-x-3 pt-6">
                     <button
                       type="button"
@@ -705,6 +756,16 @@ const SchoolsManagement: React.FC = () => {
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Student Limit</label>
                         <p className="text-white font-poppins">{selectedSchool.studentLimit}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Payment Amount</label>
+                        <p className="text-white font-poppins">${selectedSchool.paymentAmount.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Plan Expiry Date</label>
+                        <p className="text-white font-poppins">
+                          {selectedSchool.planExpiryDate ? new Date(selectedSchool.planExpiryDate).toLocaleDateString() : 'Not set'}
+                        </p>
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Address</label>

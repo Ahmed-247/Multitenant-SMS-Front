@@ -10,6 +10,8 @@ export interface School {
   SchoolPhone?: string;
   SchoolEmail?: string;
   StudentLimit?: number;
+  PaymentAmount?: number;
+  PlanExpiryDate?: string;
   SchoolStatus?: boolean;
   users?: {
     UserId: number;
@@ -25,6 +27,8 @@ export interface CreateSchoolRequest {
   SchoolPhone?: string;
   SchoolEmail?: string;
   StudentLimit?: number;
+  PaymentAmount?: number;
+  PlanExpiryDate?: string;
   AdminName: string;
   AdminEmail: string;
   AdminPassword: string;

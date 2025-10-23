@@ -3,9 +3,15 @@ import Layout from '../../components/Layout'
 import {
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline'
+import paymentService, { PaymentStatus, PaymentHistoryItem } from '../../services/schoolAdmin/payment.service'
 
 const SchoolBilling: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentData, setPaymentData] = useState<PaymentStatus | null>(null)
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [paymentProcessing, setPaymentProcessing] = useState(false)
 
   // Prevent body scrolling when payment modal is open
   useEffect(() => {
@@ -21,60 +27,129 @@ const SchoolBilling: React.FC = () => {
     }
   }, [showPaymentModal])
 
-  // Mock data - replace with actual API calls
-  const subscriptionData = {
-    plan: 'Standard',
-    studentLimit: 100,
-    currentStudents: 89,
-    price: 300,
-    billingCycle: 'Yearly',
-    status: 'Active',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    nextPayment: '2025-01-01',
-    lastPayment: '2024-10-01',
-    paymentMethod: 'Orange Money',
-    autoRenew: true
+  // Fetch payment status
+  const fetchPaymentStatus = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const response = await paymentService.getPaymentStatus()
+      
+      if (response.success) {
+        setPaymentData(response.data)
+      } else {
+        setError('Failed to fetch payment status')
+      }
+    } catch (error) {
+      console.error('Error fetching payment status:', error)
+      setError('Failed to fetch payment status')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const paymentHistory = [
-    {
-      id: '1',
-      date: '2024-10-01',
-      amount: 300,
-      status: 'Paid',
-      method: 'Orange Money',
-      invoice: 'INV-2024-001'
-    },
-    {
-      id: '2',
-      date: '2024-07-01',
-      amount: 300,
-      status: 'Paid',
-      method: 'Orange Money',
-      invoice: 'INV-2024-002'
-    },
-    {
-      id: '3',
-      date: '2024-04-01',
-      amount: 300,
-      status: 'Paid',
-      method: 'Orange Money',
-      invoice: 'INV-2024-003'
-    },
-    {
-      id: '4',
-      date: '2024-01-01',
-      amount: 300,
-      status: 'Paid',
-      method: 'Orange Money',
-      invoice: 'INV-2024-004'
+  // Fetch payment history
+  const fetchPaymentHistory = async () => {
+    try {
+      const response = await paymentService.getPaymentHistory()
+      
+      if (response.success) {
+        setPaymentHistory(response.data.payments)
+      } else {
+        console.error('Failed to fetch payment history')
+      }
+    } catch (error) {
+      console.error('Error fetching payment history:', error)
     }
-  ]
+  }
 
-  const usagePercentage = (subscriptionData.currentStudents / subscriptionData.studentLimit) * 100
+  // Load payment data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchPaymentStatus()
+      await fetchPaymentHistory()
+    }
+    loadData()
+  }, [])
+
+  // Handle payment initiation
+  const handlePaymentInitiation = async () => {
+    try {
+      setPaymentProcessing(true)
+      setError('')
+      
+      const response = await paymentService.initiatePayment()
+      
+      if (response.status === 201) {
+        // Redirect to Orange Money payment page
+        window.location.href = response.payment_url
+      } else {
+        setError('Failed to initiate payment')
+      }
+    } catch (error) {
+      console.error('Error initiating payment:', error)
+      setError('Failed to initiate payment')
+    } finally {
+      setPaymentProcessing(false)
+    }
+  }
+
+  // Helper function to format payment status for display
+  const formatPaymentStatus = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'SUCCESS':
+        return 'Paid'
+      case 'PENDING':
+        return 'Pending'
+      case 'FAILED':
+        return 'Failed'
+      default:
+        return status
+    }
+  }
+
+  // Helper functions
+  const getStatusDisplay = () => {
+    if (!paymentData) return 'Loading...'
+    
+    if (paymentData.isActive) {
+      return 'Active'
+    } else if (paymentData.isExpired) {
+      return 'Expired'
+    } else {
+      return 'Inactive'
+    }
+  }
 
   const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return 'bg-green-900/30 text-green-400 border border-green-500/30'
+      case 'Expired':
+        return 'bg-red-900/30 text-red-400 border border-red-500/30'
+      case 'Inactive':
+        return 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30'
+      default:
+        return 'bg-slate-700 text-slate-300 border border-slate-600'
+    }
+  }
+
+  const getExpiryMessage = () => {
+    if (!paymentData) return ''
+    
+    if (paymentData.isExpired) {
+      return 'Your plan has expired'
+    } else if (paymentData.daysUntilExpiry !== null) {
+      if (paymentData.daysUntilExpiry <= 7) {
+        return `Expires in ${paymentData.daysUntilExpiry} days`
+      } else {
+        return `Expires on ${new Date(paymentData.planExpiryDate).toLocaleDateString()}`
+      }
+    } else {
+      return 'No expiry date set'
+    }
+  }
+
+  const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case 'Paid':
         return 'bg-green-900/30 text-green-400 border border-green-500/30'
@@ -87,15 +162,46 @@ const SchoolBilling: React.FC = () => {
     }
   }
 
-  const getPaymentMethodIcon = (method: string) => {
-    switch (method) {
-      case 'Orange Money':
-        return '🟠'
-      case 'Bank Transfer':
-        return '🏦'
-      default:
-        return '💰'
-    }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white font-poppins">Facturation et Abonnement</h1>
+            <p className="text-slate-400 mt-2 font-poppins">Gérez l'abonnement et les paiements de votre école</p>
+          </div>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-slate-400">Loading payment information...</span>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white font-poppins">Facturation et Abonnement</h1>
+            <p className="text-slate-400 mt-2 font-poppins">Gérez l'abonnement et les paiements de votre école</p>
+          </div>
+          <div className="rounded-xl bg-red-900/30 border border-red-500/30 p-4">
+            <div className="text-sm text-red-400">{error}</div>
+            <button
+              onClick={fetchPaymentStatus}
+              className="text-xs text-red-300 hover:text-red-200 mt-1"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -107,59 +213,57 @@ const SchoolBilling: React.FC = () => {
           <p className="text-slate-400 mt-2 font-poppins">Gérez l'abonnement et les paiements de votre école</p>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="rounded-xl bg-red-900/30 border border-red-500/30 p-4">
+            <div className="text-sm text-red-400">{error}</div>
+            <button
+              onClick={() => setError('')}
+              className="text-xs text-red-300 hover:text-red-200 mt-1"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Current Subscription */}
         <div className="card">
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-xl font-semibold text-white font-poppins">Abonnement Actuel</h2>
-            <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-              subscriptionData.status === 'Active' 
-                ? 'bg-green-900/30 text-green-400 border border-green-500/30' 
-                : 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30'
-            }`}>
-              {subscriptionData.status}
+            <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(getStatusDisplay())}`}>
+              {getStatusDisplay()}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">{subscriptionData.plan} Plan</h3>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Standard Plan</h3>
               <p className="text-3xl font-bold text-blue-400">
-                ${subscriptionData.price}
-                <span className="text-lg font-normal text-slate-400">
-                  /{subscriptionData.billingCycle === 'Monthly' ? 'mo' : subscriptionData.billingCycle === 'Quarterly' ? 'qtr' : 'yr'}
-                </span>
+                ${paymentData?.paymentAmount || 0}
               </p>
-              <p className="text-sm text-slate-400 mt-1 font-poppins">{subscriptionData.billingCycle} billing</p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Student Usage</h3>
-              <div className="flex items-center space-x-2">
-                <div className="flex-1 bg-slate-700 rounded-full h-3">
-                  <div 
-                    className={`h-3 rounded-full ${
-                      usagePercentage > 90 ? 'bg-red-500' : 
-                      usagePercentage > 75 ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}
-                    style={{ width: `${usagePercentage}%` }}
-                  ></div>
-                </div>
-                <span className="text-sm font-medium text-white font-poppins">
-                  {subscriptionData.currentStudents}/{subscriptionData.studentLimit}
-                </span>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Plan Status</h3>
+              <div className="space-y-2">
+                <p className="text-sm text-slate-300 font-poppins">
+                  {getExpiryMessage()}
+                </p>
+                {paymentData?.planExpiryDate && (
+                  <p className="text-sm text-slate-400 font-poppins">
+                    Expiry: {new Date(paymentData.planExpiryDate).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-              <p className="text-sm text-slate-400 mt-1 font-poppins">
-                {Math.round(usagePercentage)}% of plan limit used
-              </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Next Payment</h3>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Payment Status</h3>
               <p className="text-lg font-semibold text-white font-poppins">
-                {new Date(subscriptionData.nextPayment).toLocaleDateString()}
+                {paymentData?.paymentStatus ? 'Paid' : 'Unpaid'}
               </p>
               <p className="text-sm text-slate-400 font-poppins">
-                {subscriptionData.autoRenew ? 'Auto-renewal enabled' : 'Manual renewal required'}
+                {paymentData?.paymentStatus ? 'Payment confirmed' : 'Payment pending'}
               </p>
             </div>
           </div>
@@ -167,24 +271,35 @@ const SchoolBilling: React.FC = () => {
           <div className="mt-6 pt-6 border-t border-slate-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <span className="text-lg">{getPaymentMethodIcon(subscriptionData.paymentMethod)}</span>
+                <span className="text-lg">🟠</span>
                 <div>
                   <p className="font-medium text-white font-poppins">Payment Method</p>
-                  <p className="text-sm text-slate-400 font-poppins">{subscriptionData.paymentMethod}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Orange Money</p>
                 </div>
               </div>
               <div className="flex space-x-3">
-                <button 
-                  onClick={() => setShowPaymentModal(true)}
-                  className="btn-primary"
-                >
-                  Make Payment
-                </button>
-                <button 
-                  className="btn-secondary"
-                >
-                  Cancel Subscription
-                </button>
+                {!paymentData?.isActive && (
+                  <button 
+                    onClick={handlePaymentInitiation}
+                    className="btn-primary"
+                    disabled={paymentProcessing}
+                  >
+                    {paymentProcessing ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Processing...</span>
+                      </div>
+                    ) : (
+                      'Make Payment'
+                    )}
+                  </button>
+                )}
+                {paymentData?.isActive && (
+                  <div className="flex items-center space-x-2 text-green-400">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="text-sm font-medium">Payment Active</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -211,7 +326,10 @@ const SchoolBilling: React.FC = () => {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Invoice
+                    Order ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                    Transaction ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Actions
@@ -219,35 +337,46 @@ const SchoolBilling: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-slate-800 divide-y divide-slate-700">
-                {paymentHistory.map((payment) => (
-                  <tr key={payment.id} className="hover:bg-slate-700 transition-colors duration-200">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-poppins">
-                      {new Date(payment.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white font-poppins">
-                      ${payment.amount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span className="text-lg mr-2">{getPaymentMethodIcon(payment.method)}</span>
-                        <span className="text-sm text-slate-300 font-poppins">{payment.method}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.status)}`}>
-                        {payment.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-poppins">
-                      {payment.invoice}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
-                        <DocumentArrowDownIcon className="h-4 w-4" />
-                      </button>
+                {paymentHistory.length > 0 ? (
+                  paymentHistory.map((payment) => (
+                    <tr key={payment.paymentId} className="hover:bg-slate-700 transition-colors duration-200">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-poppins">
+                        {new Date(payment.paymentTime).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white font-poppins">
+                        ${payment.amount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <span className="text-lg mr-2">🟠</span>
+                          <span className="text-sm text-slate-300 font-poppins">Orange Money</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusColor(formatPaymentStatus(payment.status))}`}>
+                          {formatPaymentStatus(payment.status)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-poppins">
+                        {payment.orderId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-poppins">
+                        {payment.transactionId || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
+                          <DocumentArrowDownIcon className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center text-slate-400 font-poppins">
+                      No payment history found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -261,9 +390,8 @@ const SchoolBilling: React.FC = () => {
                 <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Make Payment</h3>
                 <div className="space-y-4">
                   <div className="bg-slate-700 p-4 rounded-xl">
-                    <h4 className="font-medium text-white font-poppins">{subscriptionData.plan} Plan</h4>
-                    <p className="text-sm text-slate-400 font-poppins">Amount: ${subscriptionData.price}</p>
-                    <p className="text-sm text-slate-400 font-poppins">Billing: {subscriptionData.billingCycle}</p>
+                    <h4 className="font-medium text-white font-poppins">Standard Plan</h4>
+                    <p className="text-sm text-slate-400 font-poppins">Amount: ${paymentData?.paymentAmount || 0}</p>
                   </div>
                   
                   <div>
@@ -292,8 +420,19 @@ const SchoolBilling: React.FC = () => {
                     >
                       Cancel
                     </button>
-                    <button className="btn-primary">
-                      Process Payment
+                    <button 
+                      className="btn-primary"
+                      onClick={handlePaymentInitiation}
+                      disabled={paymentProcessing}
+                    >
+                      {paymentProcessing ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Processing...</span>
+                        </div>
+                      ) : (
+                        'Process Payment'
+                      )}
                     </button>
                   </div>
                 </div>
