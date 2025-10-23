@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import {
   UserGroupIcon,
-  CurrencyDollarIcon,
+  // CurrencyDollarIcon,
   ChartBarIcon,
   DocumentArrowDownIcon,
   ChevronDownIcon
@@ -50,8 +50,14 @@ const SuperAdminDashboard: React.FC = () => {
   // Mock data for other cards (keeping as requested)
   const mockStats = {
     contentDownloads: 3450,
-    adoptionRate: 88,
     revenue: 125000
+  }
+
+  // Calculate adoption rate from real data
+  const calculateAdoptionRate = () => {
+    if (!dashboardData) return 0
+    if (dashboardData.totalStudents === 0) return 0
+    return Math.round((dashboardData.activeStudents / dashboardData.totalStudents) * 100)
   }
 
   return (
@@ -161,9 +167,9 @@ const SuperAdminDashboard: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-400 font-poppins">Adoption Rate</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{mockStats.adoptionRate}%</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{calculateAdoptionRate()}%</p>
                   <p className="text-sm text-slate-400 font-poppins">
-                    Active ÷ Plan Limit
+                    Active ÷ Total Students
                   </p>
                 </div>
               </div>
@@ -172,7 +178,7 @@ const SuperAdminDashboard: React.FC = () => {
         )}
 
         {/* Revenue Section */}
-        {!loading && (
+        {/* {!loading && (
           <div className="card">
             <h3 className="text-lg font-semibold text-white mb-4 font-poppins">Revenue Overview</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -205,7 +211,7 @@ const SuperAdminDashboard: React.FC = () => {
               )}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </Layout>
   )

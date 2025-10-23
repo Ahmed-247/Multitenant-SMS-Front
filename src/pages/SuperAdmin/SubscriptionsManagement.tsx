@@ -5,10 +5,12 @@ import {
   CurrencyDollarIcon,
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline'
+import paymentsService, { Payment } from '../../services/SuperAdmin/payments.service'
 
 interface Subscription {
   id: string
   schoolName: string
+  orderId: string
   plan: string
   studentLimit: number
   currentStudents: number
@@ -24,9 +26,40 @@ interface Subscription {
 
 const SubscriptionsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
   const [showPaymentModal] = useState(false)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [selectedSchool, setSelectedSchool] = useState<Subscription | null>(null)
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [totalRevenue, setTotalRevenue] = useState(0)
+
+  // Fetch payments data
+  const fetchPayments = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const response = await paymentsService.getAllPayments()
+      
+      if (response.success) {
+        setPayments(response.data.payments)
+        setTotalRevenue(parseFloat(response.data.totalCollectiveAmount))
+      } else {
+        setError('Failed to fetch payments data')
+      }
+    } catch (error) {
+      console.error('Error fetching payments:', error)
+      setError('Failed to fetch payments data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load payments data on component mount
+  useEffect(() => {
+    fetchPayments()
+  }, [])
 
   // Prevent body scrolling when modals are open
   useEffect(() => {
@@ -42,63 +75,52 @@ const SubscriptionsManagement: React.FC = () => {
     }
   }, [showPaymentModal, showInvoiceModal])
 
-  // Mock data - replace with actual API calls
-  const [subscriptions] = useState<Subscription[]>([
-    {
-      id: '1',
-      schoolName: 'Greenwood High School',
-      plan: 'Standard',
-      studentLimit: 200,
-      currentStudents: 150,
-      price: 500,
-      billingCycle: 'Monthly',
-      status: 'Paid',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      paymentMethod: 'Orange Money',
-      lastPayment: '2024-10-01',
-      nextPayment: '2024-11-01'
-    },
-    {
-      id: '2',
-      schoolName: 'Riverside Academy',
-      plan: 'Standard',
-      studentLimit: 100,
-      currentStudents: 89,
-      price: 300,
-      billingCycle: 'Yearly',
-      status: 'Paid',
-      startDate: '2024-02-01',
-      endDate: '2024-12-31',
-      paymentMethod: 'Orange Money',
-      lastPayment: '2024-10-01',
-      nextPayment: '2025-01-01'
-    },
-    {
-      id: '3',
-      schoolName: 'Sunshine Elementary',
-      plan: 'Standard',
-      studentLimit: 200,
-      currentStudents: 200,
-      price: 500,
-      billingCycle: 'Monthly',
-      status: 'Unpaid',
-      startDate: '2024-10-01',
-      endDate: '2024-10-31',
-      paymentMethod: 'Orange Money',
-      lastPayment: 'N/A',
-      nextPayment: '2024-11-01'
-    }
-  ])
+  // Transform API data to subscription format
+  const transformPaymentsToSubscriptions = (payments: Payment[]): Subscription[] => {
+    // Group payments by school
+    const schoolPayments = payments.reduce((acc, payment) => {
+      const schoolId = payment.SchoolId
+      if (!acc[schoolId]) {
+        acc[schoolId] = {
+          school: payment.school,
+          payments: []
+        }
+      }
+      acc[schoolId].payments.push(payment)
+      return acc
+    }, {} as Record<string, { school: Payment['school'], payments: Payment[] }>)
 
-  const filteredSubscriptions = subscriptions.filter(sub =>
-    sub.schoolName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.plan.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+    // Transform to subscription format
+    return Object.values(schoolPayments).map(({ school, payments }) => {
+      const latestPayment = payments[0] // Most recent payment
+      
+      return {
+        id: latestPayment.SchoolId,
+        schoolName: school.SchoolName,
+        orderId: latestPayment.Order_id,
+        plan: 'Standard',
+        studentLimit: parseInt(school.StudentLimit),
+        currentStudents: 0, // This would need a separate API
+        price: parseFloat(latestPayment.Amount),
+        billingCycle: 'Yearly' as const,
+        status: latestPayment.PaymentStatus === 'SUCCESS' ? 'Paid' as const : 'Unpaid' as const,
+        startDate: school.PlanExpiryDate ? new Date(school.PlanExpiryDate).toISOString().split('T')[0] : '',
+        endDate: school.PlanExpiryDate || '',
+        paymentMethod: 'Orange Money' as const,
+        lastPayment: latestPayment.PaymentTime,
+        nextPayment: school.PlanExpiryDate || ''
+      }
+    })
+  }
 
-  const totalRevenue = subscriptions
-    .filter(sub => sub.status === 'Paid')
-    .reduce((sum, sub) => sum + sub.price, 0)
+  const subscriptions = transformPaymentsToSubscriptions(payments)
+
+  const filteredSubscriptions = subscriptions.filter(sub => {
+    const matchesSearch = sub.schoolName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         sub.orderId.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === '' || sub.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -122,48 +144,63 @@ const SubscriptionsManagement: React.FC = () => {
     }
   }
 
-  // Mock invoice history data - replace with actual API calls
-  const getInvoiceHistory = (_schoolId: string) => {
-    // This would typically fetch from API based on schoolId
-    return [
-      {
-        id: '1',
-        date: '2024-10-01',
-        amount: 500,
-        status: 'Paid',
-        method: 'Orange Money',
-        invoice: 'INV-2024-001'
-      },
-      {
-        id: '2',
-        date: '2024-09-01',
-        amount: 500,
-        status: 'Paid',
-        method: 'Orange Money',
-        invoice: 'INV-2024-002'
-      },
-      {
-        id: '3',
-        date: '2024-08-01',
-        amount: 500,
-        status: 'Paid',
-        method: 'Orange Money',
-        invoice: 'INV-2024-003'
-      },
-      {
-        id: '4',
-        date: '2024-07-01',
-        amount: 500,
-        status: 'Unpaid',
-        method: 'Orange Money',
-        invoice: 'INV-2024-004'
-      }
-    ]
+  // Get invoice history for a specific school
+  const getInvoiceHistory = (schoolId: string) => {
+    const schoolPayments = payments.filter(payment => payment.SchoolId === schoolId)
+    return schoolPayments.map(payment => ({
+      id: payment.PaymentId,
+      date: payment.PaymentTime,
+      amount: parseFloat(payment.Amount),
+      status: payment.PaymentStatus === 'SUCCESS' ? 'Paid' : payment.PaymentStatus === 'PENDING' ? 'Pending' : 'Failed',
+      method: 'Orange Money',
+      invoice: payment.Order_id
+    }))
   }
 
   const handleRowClick = (subscription: Subscription) => {
     setSelectedSchool(subscription)
     setShowInvoiceModal(true)
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white font-poppins">Subscriptions & Billing</h1>
+            <p className="text-slate-400 mt-2 font-poppins">Manage school subscriptions and payment processing</p>
+          </div>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-slate-400">Loading payments data...</span>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white font-poppins">Subscriptions & Billing</h1>
+            <p className="text-slate-400 mt-2 font-poppins">Manage school subscriptions and payment processing</p>
+          </div>
+          <div className="rounded-xl bg-red-900/30 border border-red-500/30 p-4">
+            <div className="text-sm text-red-400">{error}</div>
+            <button
+              onClick={fetchPayments}
+              className="text-xs text-red-300 hover:text-red-200 mt-1"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -203,7 +240,11 @@ const SubscriptionsManagement: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select className="input-field w-48">
+            <select 
+              className="input-field w-48"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
               <option value="">All Status</option>
               <option value="Paid">Paid</option>
               <option value="Unpaid">Unpaid</option>
@@ -221,7 +262,7 @@ const SubscriptionsManagement: React.FC = () => {
                     School
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Plan & Usage
+                    Order ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Billing
@@ -244,29 +285,17 @@ const SubscriptionsManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white font-poppins">{subscription.schoolName}</div>
-                        <div className="text-sm text-slate-400 font-poppins">
-                          {subscription.billingCycle} billing
-                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-white font-poppins">{subscription.plan}</div>
-                        <div className="text-sm text-slate-400 font-poppins">
-                          {subscription.currentStudents}/{subscription.studentLimit} students
-                        </div>
-                        <div className="w-full bg-slate-700 rounded-full h-2 mt-1">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${(subscription.currentStudents / subscription.studentLimit) * 100}%` }}
-                          ></div>
-                        </div>
+                        <div className="text-sm font-medium text-white font-poppins">{subscription.orderId}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white font-poppins">
-                          ${subscription.price}/{subscription.billingCycle === 'Monthly' ? 'mo' : subscription.billingCycle === 'Quarterly' ? 'qtr' : 'yr'}
+                          ${subscription.price}
                         </div>
                         <div className="text-sm text-slate-400 font-poppins">
                           Next: {new Date(subscription.nextPayment).toLocaleDateString()}
