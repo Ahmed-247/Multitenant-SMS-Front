@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
-import {
-  DocumentArrowDownIcon
-} from '@heroicons/react/24/outline'
+// import {
+//   DocumentArrowDownIcon
+// } from '@heroicons/react/24/outline'
 import paymentService, { PaymentStatus, PaymentHistoryItem } from '../../services/schoolAdmin/payment.service'
 
 const SchoolBilling: React.FC = () => {
