@@ -331,9 +331,9 @@ const SchoolBilling: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Transaction ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Actions
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-slate-800 divide-y divide-slate-700">
@@ -364,9 +364,9 @@ const SchoolBilling: React.FC = () => {
                         {payment.transactionId || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
+                        {/* <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
                           <DocumentArrowDownIcon className="h-4 w-4" />
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))
