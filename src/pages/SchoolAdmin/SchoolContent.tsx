@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import Layout from '../../components/Layout'
 import {
   MagnifyingGlassIcon,
-  DocumentTextIcon,
-  VideoCameraIcon
+  // DocumentTextIcon,
+  // VideoCameraIcon
 } from '@heroicons/react/24/outline'
 
 interface ContentItem {
@@ -26,85 +26,72 @@ const SchoolContent: React.FC = () => {
   const [selectedGrade, setSelectedGrade] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
 
-  // Données de test - remplacer par des appels API réels
+  // Hardcoded data based on the table structure
   const [content] = useState<ContentItem[]>([
     {
       id: '1',
-      title: 'Français 6ème Année - Grammaire de Base',
+      title: 'Primaire - 6ème Année',
       type: 'PDF',
       section: 'Primaire',
       grade: '6ème Année',
-      subject: 'Français',
-      size: '2.5 MB',
+      subject: 'Français, Calcul écrit, Sciences d\'observations, Histoire, Géographie, ECM',
+      size: 'Various',
       uploadDate: '2024-10-01',
       status: 'Available',
-      downloads: 45,
-      assignedSchools: ['Lycée Vert', 'École du Soleil']
+      downloads: 0,
+      assignedSchools: []
     },
     {
       id: '2',
-      title: 'Calcul écrit 6ème Année - Addition et Soustraction',
-      type: 'Video',
-      section: 'Primaire',
-      grade: '6ème Année',
-      subject: 'Calcul écrit',
-      size: '15.2 MB',
+      title: 'Collège - 10ème Année',
+      type: 'PDF',
+      section: 'Collège',
+      grade: '10ème Année',
+      subject: 'Mathématiques, Physique, Chimie, Histoire, Géographie, Biologie, Français, ECM',
+      size: 'Various',
       uploadDate: '2024-10-02',
       status: 'Available',
-      downloads: 32,
-      assignedSchools: ['Lycée Vert', 'Académie Riverside']
+      downloads: 0,
+      assignedSchools: []
     },
     {
       id: '3',
-      title: 'Mathématiques 10ème Année - Bases de l\'Algèbre',
-      type: 'Quiz',
-      section: 'Collège',
-      grade: '10ème Année',
-      subject: 'Mathématiques',
-      size: '1.8 MB',
+      title: 'Lycée - TSE',
+      type: 'PDF',
+      section: 'Lycée',
+      grade: 'TSE',
+      subject: 'Mathématiques, Philosophie, Français, Anglais, Physique, Chimie, Biologie, Géologie',
+      size: 'Various',
       uploadDate: '2024-10-03',
-      status: 'Processing',
+      status: 'Available',
       downloads: 0,
       assignedSchools: []
     },
     {
       id: '4',
-      title: 'Physique TSE - Mécanique et Mouvement',
-      type: 'Audio',
+      title: 'Lycée - TSM',
+      type: 'PDF',
       section: 'Lycée',
-      grade: 'TSE',
-      subject: 'Physique',
-      size: '25.3 MB',
+      grade: 'TSM',
+      subject: 'Mathématiques, Philosophie, Français, Anglais, Économie, Physique, Chimie',
+      size: 'Various',
       uploadDate: '2024-10-04',
       status: 'Available',
-      downloads: 18,
-      assignedSchools: ['Lycée Technique']
+      downloads: 0,
+      assignedSchools: []
     },
     {
       id: '5',
-      title: 'Économie TSM - Principes du Marché',
-      type: 'Repository',
-      section: 'Lycée',
-      grade: 'TSM',
-      subject: 'Économie',
-      size: '3.2 MB',
-      uploadDate: '2024-10-05',
-      status: 'Available',
-      downloads: 12,
-      assignedSchools: ['Académie des Affaires']
-    },
-    {
-      id: '6',
-      title: 'Histoire TSS - Guerres Mondiales',
+      title: 'Lycée - TSS',
       type: 'PDF',
       section: 'Lycée',
       grade: 'TSS',
-      subject: 'Histoire',
-      size: '4.1 MB',
-      uploadDate: '2024-10-06',
+      subject: 'Mathématiques, Philosophie, Français, Anglais, Économie, Histoire, Géographie',
+      size: 'Various',
+      uploadDate: '2024-10-05',
       status: 'Available',
-      downloads: 8,
-      assignedSchools: ['Lycée des Sciences Sociales']
+      downloads: 0,
+      assignedSchools: []
     }
   ])
 
@@ -236,22 +223,22 @@ const SchoolContent: React.FC = () => {
     (selectedSubject === '' || item.subject === selectedSubject)
   )
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'PDF':
-        return <DocumentTextIcon className="h-5 w-5 text-blue-600" />
-      case 'Video':
-        return <VideoCameraIcon className="h-5 w-5 text-red-600" />
-      case 'Audio':
-        return <div className="h-5 w-5 bg-purple-600 rounded"></div>
-      case 'Quiz':
-        return <div className="h-5 w-5 bg-yellow-600 rounded"></div>
-      case 'Repository':
-        return <div className="h-5 w-5 bg-green-600 rounded"></div>
-      default:
-        return <DocumentTextIcon className="h-5 w-5 text-gray-600" />
-    }
-  }
+  // const getTypeIcon = (type: string) => {
+  //   switch (type) {
+  //     case 'PDF':
+  //       return <DocumentTextIcon className="h-5 w-5 text-blue-600" />
+  //     case 'Video':
+  //       return <VideoCameraIcon className="h-5 w-5 text-red-600" />
+  //     case 'Audio':
+  //       return <div className="h-5 w-5 bg-purple-600 rounded"></div>
+  //     case 'Quiz':
+  //       return <div className="h-5 w-5 bg-yellow-600 rounded"></div>
+  //     case 'Repository':
+  //       return <div className="h-5 w-5 bg-green-600 rounded"></div>
+  //     default:
+  //       return <DocumentTextIcon className="h-5 w-5 text-gray-600" />
+  //   }
+  // }
 
 
   return (
@@ -324,42 +311,33 @@ const SchoolContent: React.FC = () => {
               <thead className="bg-slate-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Titre du Contenu
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Section
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Niveau
+                    Grade / Level
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Matière
+                    Courses
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                    Content Format
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-slate-800 divide-y divide-slate-700">
-          {filteredContent.map((item) => (
+                {filteredContent.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-700 transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-white font-poppins">{item.title}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                  {getTypeIcon(item.type)}
-                        <span className="ml-2 text-sm text-slate-300 font-poppins">{item.type}</span>
-                  </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-white font-poppins">{item.section}</div>
+                      <div className="text-sm font-medium text-white font-poppins">{item.section}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-white font-poppins">{item.grade}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="text-sm text-white font-poppins">{item.subject}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-white font-poppins">Audio · Video · PDF · Quiz · Repository</div>
                     </td>
                   </tr>
                 ))}

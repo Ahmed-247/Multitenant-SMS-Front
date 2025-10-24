@@ -103,7 +103,7 @@ const StudentsManagement: React.FC = () => {
     fetchStudents()
   }, [])
 
-  const grades = ['6th Year', '10th Year', 'TSE', 'TSM', 'TSS']
+  const grades = ['6ème Année', '10ème Année', 'TSE', 'TSM', 'TSS']
 
   const filteredStudents = students.filter(student =>
     (student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
