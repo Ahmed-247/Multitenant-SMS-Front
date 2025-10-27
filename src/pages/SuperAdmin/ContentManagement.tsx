@@ -3,7 +3,7 @@ import Layout from '../../components/Layout'
 import {
   
   MagnifyingGlassIcon,
-  // DocumentTextIcon,
+  DocumentTextIcon,
   // VideoCameraIcon,
   // PhotoIcon
 } from '@heroicons/react/24/outline'
@@ -23,6 +23,7 @@ interface ContentItem {
 }
 
 const ContentManagement: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'content' | 'pdf'>('content')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSection, setSelectedSection] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
@@ -274,102 +275,147 @@ const ContentManagement: React.FC = () => {
           </button> */}
         </div>
 
-
-        {/* Search and Filters */}
+        {/* Tab Navigation */}
         <div className="card">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="relative">
-              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search content..."
-                className="input-field pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <select 
-              className="input-field" 
-              value={selectedSection}
-              onChange={(e) => handleSectionChange(e.target.value)}
+          <div className="flex space-x-1 bg-slate-700/50 p-1 rounded-lg">
+            <button
+              onClick={() => setActiveTab('content')}
+              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 font-poppins ${
+                activeTab === 'content'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-600'
+              }`}
             >
-              <option value="">All Sections</option>
-              {sections.map(section => (
-                <option key={section.value} value={section.value}>{section.label}</option>
-              ))}
-            </select>
-            <select 
-              className="input-field" 
-              value={selectedGrade}
-              onChange={(e) => handleGradeChange(e.target.value)}
-              disabled={!selectedSection}
+              Content Management
+            </button>
+            <button
+              onClick={() => setActiveTab('pdf')}
+              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 font-poppins ${
+                activeTab === 'pdf'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-600'
+              }`}
             >
-              <option value="">All Grades</option>
-              {availableGrades.map(grade => (
-                <option key={grade.value} value={grade.value}>{grade.label}</option>
-              ))}
-            </select>
-            <select 
-              className="input-field" 
-              value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
-              disabled={!selectedGrade}
-            >
-              <option value="">All Subjects</option>
-              {availableSubjects.map(subject => (
-                <option key={subject} value={subject}>{subject}</option>
-              ))}
-            </select>
-            <button 
-              className="btn-secondary"
-              onClick={clearFilters}
-            >
-              Clear Filters
+              PDF Content
             </button>
           </div>
         </div>
 
-        {/* Content Table */}
-        <div className="card">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-700">
-              <thead className="bg-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Section
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Grade / Level
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Courses
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Content Format
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-slate-800 divide-y divide-slate-700">
-                {filteredContent.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-700 transition-colors duration-200">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-white font-poppins">{item.section}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-white font-poppins">{item.grade}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-white font-poppins">{item.subject}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-white font-poppins">Audio · Video · PDF · Quiz · Repository</div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+        {/* Content Management Tab */}
+        {activeTab === 'content' && (
+          <>
+            {/* Search and Filters */}
+            <div className="card">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="relative">
+                  <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search content..."
+                    className="input-field pl-10"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <select 
+                  className="input-field" 
+                  value={selectedSection}
+                  onChange={(e) => handleSectionChange(e.target.value)}
+                >
+                  <option value="">All Sections</option>
+                  {sections.map(section => (
+                    <option key={section.value} value={section.value}>{section.label}</option>
+                  ))}
+                </select>
+                <select 
+                  className="input-field" 
+                  value={selectedGrade}
+                  onChange={(e) => handleGradeChange(e.target.value)}
+                  disabled={!selectedSection}
+                >
+                  <option value="">All Grades</option>
+                  {availableGrades.map(grade => (
+                    <option key={grade.value} value={grade.value}>{grade.label}</option>
+                  ))}
+                </select>
+                <select 
+                  className="input-field" 
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  disabled={!selectedGrade}
+                >
+                  <option value="">All Subjects</option>
+                  {availableSubjects.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+                <button 
+                  className="btn-secondary"
+                  onClick={clearFilters}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+
+            {/* Content Table */}
+            <div className="card">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-700">
+                  <thead className="bg-slate-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                        Section
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                        Grade / Level
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                        Courses
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                        Content Format
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-slate-800 divide-y divide-slate-700">
+                    {filteredContent.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-700 transition-colors duration-200">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white font-poppins">{item.section}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-white font-poppins">{item.grade}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-white font-poppins">{item.subject}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-white font-poppins">Audio · Video · PDF · Quiz · Repository</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                </div>
+              </div>
+          </>
+        )}
+
+        {/* PDF Content Tab */}
+        {activeTab === 'pdf' && (
+          <div className="card">
+            <div className="text-center py-12">
+              <div className="mx-auto w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                <DocumentTextIcon className="h-12 w-12 text-slate-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white font-poppins mb-2">PDF Content Management</h3>
+              <p className="text-slate-400 font-poppins mb-6">Manage and organize PDF educational content</p>
+              <p className="text-sm text-slate-500 font-poppins">PDF content management features coming soon...</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Upload Content Modal */}
         {showUploadModal && (

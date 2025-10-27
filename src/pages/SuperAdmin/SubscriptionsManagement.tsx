@@ -3,7 +3,7 @@ import Layout from '../../components/Layout'
 import {
   MagnifyingGlassIcon,
   CurrencyDollarIcon,
-  DocumentArrowDownIcon
+  // DocumentArrowDownIcon
 } from '@heroicons/react/24/outline'
 import paymentsService, { Payment } from '../../services/SuperAdmin/payments.service'
 
@@ -338,6 +338,7 @@ const SubscriptionsManagement: React.FC = () => {
                     </svg>
                   </button>
                 </div>
+
                 
                 {/* Invoice History Table */}
                 <div className="overflow-x-auto">
@@ -348,7 +349,13 @@ const SubscriptionsManagement: React.FC = () => {
                           Date
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                          Amount
+                          Total Amount to Pay
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Amount Paid
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Amount Left to Pay
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                           Method
@@ -359,41 +366,45 @@ const SubscriptionsManagement: React.FC = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                           Invoice
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                          Actions
-                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-slate-800 divide-y divide-slate-700">
-                      {getInvoiceHistory(selectedSchool.id).map((payment) => (
-                        <tr key={payment.id} className="hover:bg-slate-700 transition-colors duration-200">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-poppins">
-                            {new Date(payment.date).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white font-poppins">
-                            ${payment.amount}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className="text-lg mr-2">{getPaymentMethodIcon(payment.method)}</span>
-                              <span className="text-sm text-slate-300 font-poppins">{payment.method}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.status)}`}>
-                              {payment.status}
-                            </span>
-                          </td>
+                      {getInvoiceHistory(selectedSchool.id).map((payment) => {
+                        const totalAmount = payment.amount
+                        const amountPaid = payment.status === 'Paid' ? payment.amount : 0
+                        const amountLeftToPay = totalAmount - amountPaid
+
+                        return (
+                          <tr key={payment.id} className="hover:bg-slate-700 transition-colors duration-200">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-poppins">
+                              {new Date(payment.date).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white font-poppins">
+                              ${totalAmount.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-400 font-poppins">
+                              ${amountPaid.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-400 font-poppins">
+                              ${amountLeftToPay.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <span className="text-lg mr-2">{getPaymentMethodIcon(payment.method)}</span>
+                                <span className="text-sm text-slate-300 font-poppins">{payment.method}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.status)}`}>
+                                {payment.status}
+                              </span>
+                            </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-poppins">
                             {payment.invoice}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
-                              <DocumentArrowDownIcon className="h-4 w-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>

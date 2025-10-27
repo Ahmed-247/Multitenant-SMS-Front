@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import {
   UserGroupIcon,
-  // CurrencyDollarIcon,
+  CurrencyDollarIcon,
   ChartBarIcon,
   DocumentArrowDownIcon,
   ChevronDownIcon
@@ -49,8 +49,7 @@ const SuperAdminDashboard: React.FC = () => {
 
   // Mock data for other cards (keeping as requested)
   const mockStats = {
-    contentDownloads: 3450,
-    revenue: 125000
+    contentDownloads: 3450
   }
 
   // Calculate adoption rate from real data
@@ -178,7 +177,7 @@ const SuperAdminDashboard: React.FC = () => {
         )}
 
         {/* Revenue Section */}
-        {/* {!loading && (
+        {!loading && dashboardData && (
           <div className="card">
             <h3 className="text-lg font-semibold text-white mb-4 font-poppins">Revenue Overview</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -190,28 +189,28 @@ const SuperAdminDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Total Platform Revenue' : 'School Revenue'}
                   </p>
-                  <p className="text-2xl font-bold text-white font-poppins">${mockStats.revenue.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-white font-poppins">${dashboardData.totalRevenue.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'All time' : 'This school'}
                   </p>
                 </div>
               </div>
               
-              {selectedSchool === 'all' && (
+              {selectedSchool === 'all' && dashboardData.schools.length > 0 && (
                 <div className="flex items-center">
                   <div className="p-3 bg-blue-600/20 rounded-xl">
                     <CurrencyDollarIcon className="h-6 w-6 text-blue-400" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-slate-400 font-poppins">Average Revenue per School</p>
-                    <p className="text-2xl font-bold text-white font-poppins">${Math.round(mockStats.revenue / 4).toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-white font-poppins">${Math.round(dashboardData.totalRevenue / dashboardData.schools.length).toLocaleString()}</p>
                     <p className="text-sm text-slate-400 font-poppins">Monthly average</p>
                   </div>
                 </div>
               )}
             </div>
           </div>
-        )} */}
+        )} 
       </div>
     </Layout>
   )

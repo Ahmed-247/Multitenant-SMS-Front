@@ -11,6 +11,7 @@ export interface School {
 export interface DashboardStats {
   totalStudents: number;
   activeStudents: number;
+  totalRevenue: number;
   schools: School[];
 }
 
