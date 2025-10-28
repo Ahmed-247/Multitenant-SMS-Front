@@ -33,6 +33,7 @@ interface StudentUI {
 const StudentsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -69,7 +70,8 @@ const StudentsManagement: React.FC = () => {
     password: '', // Not returned from API for security
     parentName: student.ParentName || 'Not provided',
     parentPhone: student.ParentPhoneNo || 'Not provided',
-    status: 'Active' as const, // Mock data - would need separate API
+    // Map boolean StudentStatus from API to UI strings
+    status: student.StudentStatus === true ? 'Active' : (student.StudentStatus === false ? 'Inactive' : 'Inactive'),
     lastLogin: new Date().toISOString().split('T')[0], // Mock data
     totalDownloads: 0, // Mock data - would need separate API
     createdAt: new Date().toISOString().split('T')[0] // Mock data
@@ -110,7 +112,8 @@ const StudentsManagement: React.FC = () => {
      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
      student.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
      student.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (selectedGrade === '' || student.grade === selectedGrade)
+    (selectedGrade === '' || student.grade === selectedGrade) &&
+    (selectedStatus === '' || student.status === selectedStatus)
   )
 
   const activeStudents = students.filter(s => s.status === 'Active').length
@@ -291,11 +294,15 @@ const StudentsManagement: React.FC = () => {
                 <option key={grade} value={grade}>{grade}</option>
               ))}
             </select>
-            <select className="input-field w-48">
+            <select
+              className="input-field w-48"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
               <option value="">All Status</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
-              <option value="Suspended">Suspended</option>
+             
             </select>
           </div>
         </div>

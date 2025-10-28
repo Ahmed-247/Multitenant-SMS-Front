@@ -11,6 +11,7 @@ export interface Student {
   Grade?: string;
   StudentEmail: string;
   StudentPhoneNo?: string;
+  StudentStatus?: boolean;
   ParentName?: string;
   ParentPhoneNo?: string;
   SchoolId: number;

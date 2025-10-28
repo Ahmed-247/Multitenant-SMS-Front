@@ -203,7 +203,7 @@ const SuperAdminDashboard: React.FC = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-slate-400 font-poppins">Average Revenue per School</p>
-                    <p className="text-2xl font-bold text-white font-poppins">${Math.round(dashboardData.totalRevenue / dashboardData.schools.length).toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-white font-poppins">${dashboardData.averageRevenue.toLocaleString()}</p>
                     <p className="text-sm text-slate-400 font-poppins">Monthly average</p>
                   </div>
                 </div>
