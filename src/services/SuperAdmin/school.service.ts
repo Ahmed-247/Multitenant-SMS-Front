@@ -12,6 +12,7 @@ export interface School {
   StudentLimit?: number;
   PaymentAmount?: number;
   PlanExpiryDate?: string;
+  PlanMonthDuration?: number;
   SchoolStatus?: boolean;
   users?: {
     UserId: number;
@@ -28,7 +29,7 @@ export interface CreateSchoolRequest {
   SchoolEmail?: string;
   StudentLimit?: number;
   PaymentAmount?: number;
-  PlanExpiryDate?: string;
+  PlanMonthDuration?: number;
   AdminName: string;
   AdminEmail: string;
   AdminPassword: string;

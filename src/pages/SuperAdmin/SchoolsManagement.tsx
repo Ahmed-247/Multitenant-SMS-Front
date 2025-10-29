@@ -23,6 +23,7 @@ interface SchoolUI {
   activeStudents: number
   studentLimit: number
   paymentAmount: number
+  planDurationInMonths: number
   planExpiryDate: string
   plan: string
   status: 'Active' | 'InActive'
@@ -79,6 +80,7 @@ const SchoolsManagement: React.FC = () => {
           studentLimit: school.StudentLimit || 0,
           paymentAmount: school.PaymentAmount || 0,
           planExpiryDate: school.PlanExpiryDate || '',
+          planDurationInMonths: school.PlanMonthDuration || 0,
           plan: 'Standard', // Mock data - would need separate API
           status: school.SchoolStatus ? 'Active' : 'InActive',
           createdAt: new Date().toISOString().split('T')[0] // Mock data
@@ -133,6 +135,7 @@ const SchoolsManagement: React.FC = () => {
           studentLimit: response.data.StudentLimit || 0,
           paymentAmount: response.data.PaymentAmount || 0,
           planExpiryDate: response.data.PlanExpiryDate || '',
+          planDurationInMonths: response.data.PlanMonthDuration || 0,
           plan: 'Standard', // Mock data - would need separate API
           status: 'Active' as const, // Mock data - would need separate API
           createdAt: new Date().toISOString().split('T')[0] // Mock data
@@ -393,7 +396,7 @@ const SchoolsManagement: React.FC = () => {
                         AdminPassword: formData.get('adminPassword') as string,
                         StudentLimit: parseInt(formData.get('studentLimit') as string),
                         PaymentAmount: parseFloat(formData.get('paymentAmount') as string) || undefined,
-                        PlanExpiryDate: formData.get('planExpiryDate') as string || undefined
+                        PlanMonthDuration: parseInt(formData.get('planMonthDuration') as string) || undefined
                       }
 
                       const response = await schoolService.createSchoolWithAdmin(schoolData)
@@ -517,12 +520,22 @@ const SchoolsManagement: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan Expiry Date</label>
-                      <input
+                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan Duration</label>
+                      <select
+                        name="planMonthDuration"
+                        className="input-field bg-slate-800 text-white border border-slate-600 rounded-lg p-2 w-full focus:ring focus:ring-blue-500"
+                      >
+                        <option value="">Select duration</option>
+                        <option value="1">1 Month</option>
+                        <option value="3">3 Months</option>
+                        <option value="6">6 Months</option>
+                        <option value="12">12 Months</option>
+                      </select>
+                      {/* <input
                         type="date"
                         name="planExpiryDate"
                         className="input-field"
-                      />
+                      /> */}
                     </div>
                   </div>
 
@@ -577,7 +590,7 @@ const SchoolsManagement: React.FC = () => {
                         SchoolEmail: formData.get('email') as string,
                         StudentLimit: parseInt(formData.get('studentLimit') as string),
                         PaymentAmount: parseFloat(formData.get('paymentAmount') as string) || undefined,
-                        PlanExpiryDate: formData.get('planExpiryDate') as string || undefined
+                        PlanMonthDuration:  parseInt(formData.get('planMonthDuration') as string) || undefined
                       }
 
                       const response = await schoolService.updateSchool(parseInt(selectedSchool.id), schoolData)
@@ -673,13 +686,18 @@ const SchoolsManagement: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan Expiry Date</label>
-                      <input
-                        type="date"
-                        name="planExpiryDate"
-                        className="input-field"
-                        defaultValue={selectedSchool.planExpiryDate ? new Date(selectedSchool.planExpiryDate).toISOString().split('T')[0] : ''}
-                      />
+                      <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Plan Month Duration</label>
+                      <select
+                        name="planMonthDuration"
+                        className="input-field bg-slate-800 text-white border border-slate-600 rounded-lg p-2 w-full focus:ring focus:ring-blue-500"
+                        defaultValue={selectedSchool.planDurationInMonths}
+                      >
+                        <option value="">Select duration</option>
+                        <option value="1">1 Month</option>
+                        <option value="3">3 Months</option>
+                        <option value="6">6 Months</option>
+                        <option value="12">12 Months</option>
+                      </select>
                     </div>
                   </div>
 
@@ -762,12 +780,17 @@ const SchoolsManagement: React.FC = () => {
                         <p className="text-white font-poppins">${selectedSchool.paymentAmount.toLocaleString()}</p>
                       </div>
                       <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Plan Duration (Months)</label>
+                        <p className="text-white font-poppins">{selectedSchool.planDurationInMonths?.toLocaleString()}</p>
+                      </div>
+                      
+                      <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Plan Expiry Date</label>
                         <p className="text-white font-poppins">
                           {selectedSchool.planExpiryDate ? new Date(selectedSchool.planExpiryDate).toLocaleDateString() : 'Not set'}
                         </p>
                       </div>
-                      <div className="md:col-span-2">
+                      <div className="">
                         <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Address</label>
                         <p className="text-white font-poppins">{selectedSchool.address}</p>
                       </div>
