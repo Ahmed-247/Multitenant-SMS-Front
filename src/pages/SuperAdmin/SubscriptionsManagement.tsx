@@ -6,6 +6,7 @@ import {
   // DocumentArrowDownIcon
 } from '@heroicons/react/24/outline'
 import paymentsService, { Payment } from '../../services/SuperAdmin/payments.service'
+import { generatePaymentInvoicePdf } from '../../utils/pdfUtils'
 
 interface Subscription {
   id: string
@@ -160,6 +161,41 @@ const SubscriptionsManagement: React.FC = () => {
   const handleRowClick = (subscription: Subscription) => {
     setSelectedSchool(subscription)
     setShowInvoiceModal(true)
+  }
+
+  const handleDownloadInvoice = async (
+    opts: {
+      schoolName: string,
+      orderId: string,
+      amount: number,
+      date: string,
+      status: string,
+      method: string
+    }
+  ) => {
+    const now = new Date(opts.date)
+    const due = new Date(now)
+    due.setDate(due.getDate() + 14)
+
+    const invoiceNumber = opts.orderId || `INV-${now.getTime()}`
+    const amountPaid = opts.status === 'Paid' ? opts.amount : 0
+    const amountLeft = opts.amount - amountPaid
+
+    await generatePaymentInvoicePdf({
+      schoolName: opts.schoolName,
+      invoiceNumber,
+      invoiceDate: now,
+      dueDate: due,
+      row: {
+        date: opts.date,
+        totalAmount: Number(opts.amount || 0),
+        amountPaid: Number(amountPaid || 0),
+        amountLeftToPay: Number(amountLeft || 0),
+        method: opts.method,
+        status: opts.status,
+        invoice: opts.orderId,
+      },
+    })
   }
 
   // Show loading state
@@ -366,6 +402,9 @@ const SubscriptionsManagement: React.FC = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                           Invoice
                         </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins hidden sm:table-cell">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-slate-800 divide-y divide-slate-700">
@@ -400,7 +439,37 @@ const SubscriptionsManagement: React.FC = () => {
                               </span>
                             </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-poppins">
-                            {payment.invoice}
+                            <div className="flex flex-col gap-2">
+                              <span>{payment.invoice}</span>
+                              <button
+                                className="sm:hidden px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-md w-full"
+                                onClick={() => handleDownloadInvoice({
+                                  schoolName: selectedSchool.schoolName,
+                                  orderId: payment.invoice,
+                                  amount: totalAmount,
+                                  date: payment.date,
+                                  status: payment.status,
+                                  method: payment.method
+                                })}
+                              >
+                                Download PDF
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium hidden sm:table-cell">
+                            <button
+                              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-md"
+                              onClick={() => handleDownloadInvoice({
+                                schoolName: selectedSchool.schoolName,
+                                orderId: payment.invoice,
+                                amount: totalAmount,
+                                date: payment.date,
+                                status: payment.status,
+                                method: payment.method
+                              })}
+                            >
+                              Download PDF
+                            </button>
                           </td>
                           </tr>
                         )

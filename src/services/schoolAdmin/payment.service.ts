@@ -12,6 +12,8 @@ export interface PaymentStatus {
   isExpired: boolean;
   daysUntilExpiry: number | null;
   isActive: boolean;
+  planMonthDuration: number;
+  studentLimit: string;
 }
 
 export interface PaymentStatusResponse {
@@ -58,6 +60,11 @@ class PaymentService extends BaseRequestService {
   // Initiate payment with Orange Money
   initiatePayment(): Promise<PaymentInitiationResponse> {
     return this.post(`${API_URL}/api/orange/pay`);
+  }
+
+  // Initiate payment to increase student limit
+  initiatePaymentIncreaseStudent(studentLimit: number): Promise<PaymentInitiationResponse> {
+    return this.post(`${API_URL}/api/orange/increase-student-limit`, { studentLimit });
   }
 
   // Get payment history for the authenticated school

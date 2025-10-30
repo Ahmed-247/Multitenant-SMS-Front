@@ -7,11 +7,13 @@ import paymentService, { PaymentStatus, PaymentHistoryItem } from '../../service
 
 const SchoolBilling: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showStudentLimitModal, setShowStudentLimitModal] = useState(false)
   const [paymentData, setPaymentData] = useState<PaymentStatus | null>(null)
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [paymentProcessing, setPaymentProcessing] = useState(false)
+  const [additionalStudents, setAdditionalStudents] = useState<number | any>(1) // Default increment of 1 student
 
   // Prevent body scrolling when payment modal is open
   useEffect(() => {
@@ -181,6 +183,43 @@ const SchoolBilling: React.FC = () => {
     )
   }
 
+  // Calculate additional cost based on current plan
+  const calculateAdditionalCost = () => {
+    if (!paymentData) return 0
+    const costPerStudent = paymentData.paymentAmount / parseInt(paymentData.studentLimit)
+    const numericAdditional = typeof additionalStudents === 'string'
+      ? parseInt(additionalStudents || '0')
+      : (additionalStudents || 0)
+    return parseFloat((costPerStudent * numericAdditional).toFixed(2))
+  }
+
+  // Handle student limit increase payment
+  const handleStudentLimitIncrease = async () => {
+    try {
+      setError('')
+      const num = typeof additionalStudents === 'string' ? parseInt(additionalStudents) : additionalStudents
+      if (!num || isNaN(num) || num <= 0) {
+        setError('Please enter a valid number of additional students')
+        return
+      }
+
+      setPaymentProcessing(true)
+      const response = await paymentService.initiatePaymentIncreaseStudent(num)
+
+      if (response && response.payment_url) {
+        setShowStudentLimitModal(false)
+        window.location.href = response.payment_url
+      } else {
+        setError('Failed to initiate increase limit payment')
+      }
+    } catch (err) {
+      console.error('Error initiating increase limit payment:', err)
+      setError('Failed to initiate increase limit payment')
+    } finally {
+      setPaymentProcessing(false)
+    }
+  }
+
   // Show error state
   if (error) {
     return (
@@ -235,11 +274,14 @@ const SchoolBilling: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
               <h3 className="text-lg font-medium text-white mb-2 font-poppins">Standard Plan</h3>
               <p className="text-3xl font-bold text-blue-400">
                 ${paymentData?.paymentAmount || 0}
+              </p>
+              <p className="text-sm text-slate-400 font-poppins mt-1">
+                {paymentData?.planMonthDuration} months duration
               </p>
             </div>
 
@@ -249,12 +291,30 @@ const SchoolBilling: React.FC = () => {
                 <p className="text-sm text-slate-300 font-poppins">
                   {getExpiryMessage()}
                 </p>
-                {paymentData?.planExpiryDate && (
+                {/* {paymentData?.planExpiryDate && (
                   <p className="text-sm text-slate-400 font-poppins">
                     Expiry: {new Date(paymentData.planExpiryDate).toLocaleDateString()}
                   </p>
-                )}
+                )} */}
               </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Student Limit</h3>
+              <p className="text-lg font-semibold text-white font-poppins">
+                {paymentData?.studentLimit} Students
+              </p>
+              <p className="text-sm text-slate-400 font-poppins">
+                Maximum capacity
+              </p>
+              {paymentData?.isActive && (
+                <button
+                  onClick={() => setShowStudentLimitModal(true)}
+                  className="mt-2 px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200"
+                >
+                  Increase Limit
+                </button>
+              )}
             </div>
 
             <div>
@@ -440,6 +500,91 @@ const SchoolBilling: React.FC = () => {
             </div>
           </div>
         )}
+
+
+        {/* Student Limit Increase Modal */}
+{showStudentLimitModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" style={{margin: 0}}>
+    <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full">
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Increase Student Limit</h3>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-300 font-poppins">Current Limit</label>
+            <p className="text-lg text-white font-poppins">{paymentData?.studentLimit} Students</p>
+          </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300 font-poppins">Additional Students</label>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="number"
+                        min="1"
+                        value={additionalStudents}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow empty string while user clears input
+                          if (value === '') {
+                            setAdditionalStudents('');
+                            return;
+                          }
+
+                          const parsedValue = parseInt(value);
+                          if (!isNaN(parsedValue) && parsedValue >= 1) {
+                            setAdditionalStudents(parsedValue);
+                          }
+                        }}
+                        onBlur={() => {
+                          // Reset to 1 if user leaves it empty
+                          if (additionalStudents === '') {
+                            setAdditionalStudents(1);
+                          }
+                        }}
+                        className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter number of students"
+                      />
+                    </div>
+                  </div>
+
+          <div className="bg-slate-700/50 p-4 rounded-xl space-y-2">
+            <div className="flex justify-between">
+              <span className="text-slate-300 font-poppins">New Total Limit</span>
+              <span className="text-white font-poppins">
+                {(() => {
+                  const base = parseInt(paymentData?.studentLimit || '0')
+                  const add = typeof additionalStudents === 'string'
+                    ? parseInt(additionalStudents || '0')
+                    : (additionalStudents || 0)
+                  return base + add
+                })()} Students
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-300 font-poppins">Additional Cost</span>
+              <span className="text-white font-poppins">${calculateAdditionalCost()}</span>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-6">
+            <button
+              type="button"
+              onClick={() => setShowStudentLimitModal(false)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button 
+              className="btn-primary"
+              onClick={handleStudentLimitIncrease}
+            >
+              Proceed to Payment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </Layout>
   )
