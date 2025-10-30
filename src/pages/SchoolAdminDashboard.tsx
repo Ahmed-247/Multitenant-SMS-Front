@@ -6,6 +6,7 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline'
 import schoolAdminDashboardService, { type SchoolAdminStats } from '../services/schoolAdmin/dashboard.service'
+import { getToken, parseJwt } from '../utils/tokenUtils'
 import { handleError } from '../utils/errorUtils'
 
 const SchoolAdminDashboard: React.FC = () => {
@@ -21,15 +22,39 @@ const SchoolAdminDashboard: React.FC = () => {
     }
   }, [])
 
+  const getSchoolIdFromToken = (): number | null => {
+    const token = getToken() as string | null
+    if (!token) return null
+    const decoded = parseJwt(token) as Record<string, any>
+    const possible = ['schoolId', 'SchoolId', 'schoolID', 'SchoolID']
+    for (const key of possible) {
+      if (decoded && decoded[key] !== undefined && decoded[key] !== null) {
+        const n = Number(decoded[key])
+        return isNaN(n) ? null : n
+      }
+    }
+    return null
+  }
+
   // Fetch school admin statistics
   const fetchStats = async () => {
     try {
       setLoading(true)
       setError('')
-      const response = await schoolAdminDashboardService.getSchoolAdminStats()
+      const schoolId = getSchoolIdFromToken()
+      const response = schoolId !== null
+        ? await schoolAdminDashboardService.getStudentStatsBySchool(schoolId)
+        : await schoolAdminDashboardService.getSchoolAdminStats()
       
       if (response.success) {
-        setStats(response.data)
+        const d: any = response.data
+        const parsed: SchoolAdminStats = {
+          totalStudents: Number(d.totalStudents ?? 0),
+          activeStudents: Number(d.activeStudents ?? 0),
+          inactiveStudents: Number(d.inactiveStudents ?? 0),
+          contentDownloads: Number(d.contentDownloads ?? 0),
+        }
+        setStats(parsed)
       } else {
         setError('Failed to fetch statistics')
       }
@@ -47,11 +72,7 @@ const SchoolAdminDashboard: React.FC = () => {
     fetchStats()
   }, [])
 
-  // Mock data for content downloads (keeping as requested)
-  const mockStats = {
-    contentDownloads: 450,
-    adoptionRate: 83
-  }
+  // const contentDownloads = stats?.contentDownloads ?? 0
 
 
 
@@ -96,9 +117,9 @@ const SchoolAdminDashboard: React.FC = () => {
                   <UserGroupIcon className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Total des Étudiants</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Capacité Étudiants (Plan)</p>
                   <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
-                  <p className="text-sm text-slate-400 font-poppins">Inscrits</p>
+                  <p className="text-sm text-slate-400 font-poppins">Limite actuelle</p>
                 </div>
               </div>
             </div>
@@ -116,7 +137,6 @@ const SchoolAdminDashboard: React.FC = () => {
               </div>
             </div>
 
-
             <div className="card">
               <div className="flex items-center">
                 <div className="p-3 bg-purple-600/20 rounded-xl">
@@ -124,7 +144,7 @@ const SchoolAdminDashboard: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-400 font-poppins">Téléchargements de Contenu</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{mockStats.contentDownloads.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{Number(stats.contentDownloads ?? 0).toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Total des téléchargements</p>
                 </div>
               </div>

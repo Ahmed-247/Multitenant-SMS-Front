@@ -7,6 +7,7 @@ export interface SchoolAdminStats {
   totalStudents: number;
   activeStudents: number;
   inactiveStudents: number;
+  contentDownloads?: number;
 }
 
 export interface SchoolAdminStatsResponse {
@@ -19,6 +20,11 @@ class SchoolAdminDashboardService extends BaseRequestService {
   // Get school admin statistics
   getSchoolAdminStats(): Promise<SchoolAdminStatsResponse> {
     return this.get(`${API_URL}/api/school-admin/stats`);
+  }
+
+  // Get student statistics by school id (capacity, active, inactive)
+  getStudentStatsBySchool(schoolId: number): Promise<SchoolAdminStatsResponse> {
+    return this.get(`${API_URL}/api/school-admin/stats/${schoolId}`);
   }
 }
 

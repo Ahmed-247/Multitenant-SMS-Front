@@ -58,6 +58,7 @@ const StudentsManagement: React.FC = () => {
   }, [showAddModal, showEditModal, showViewModal])
 
   const [students, setStudents] = useState<StudentUI[]>([])
+  const [totalStudentsCount, setTotalStudentsCount] = useState<number>(0)
 
   // Transform API student data to UI format
   const transformStudentToUI = (student: Student): StudentUI => ({
@@ -106,6 +107,13 @@ const StudentsManagement: React.FC = () => {
       if (response.success) {
         const transformedStudents = response.data.map(transformStudentToUI)
         setStudents(transformedStudents)
+        const respAny: any = response
+        const possibleCount =
+          respAny?.count ??
+          respAny?.data?.count ??
+          respAny?.data?.total ??
+          transformedStudents.length
+        setTotalStudentsCount(Number(possibleCount) || 0)
       } else {
         setError('Failed to fetch students')
       }
@@ -135,7 +143,7 @@ const StudentsManagement: React.FC = () => {
   )
 
   const activeStudents = students.filter(s => s.status === 'Active').length
-  const totalStudents = students.length
+  const totalStudents = totalStudentsCount
 
   const getStatusColor = (status: string) => {
     switch (status) {
