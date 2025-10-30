@@ -10,6 +10,7 @@ import {
   AcademicCapIcon,
 } from '@heroicons/react/24/outline'
 import studentService, { type Student } from '../../services/schoolAdmin/student.service'
+import { getToken, parseJwt } from '../../utils/tokenUtils'
 import { handleError } from '../../utils/errorUtils'
 
 // UI interface for display purposes
@@ -77,13 +78,30 @@ const StudentsManagement: React.FC = () => {
     createdAt: new Date().toISOString().split('T')[0] // Mock data
   })
 
+  // Resolve SchoolId from JWT token (handles different casings)
+  const getSchoolIdFromToken = (): number | null => {
+    const token = getToken() as string | null
+    if (!token) return null
+    const decoded = parseJwt(token) as Record<string, any>
+    const possibleKeys = ['schoolId', 'SchoolId', 'schoolID', 'SchoolID']
+    for (const key of possibleKeys) {
+      if (decoded && decoded[key] !== undefined && decoded[key] !== null) {
+        const n = Number(decoded[key])
+        return isNaN(n) ? null : n
+      }
+    }
+    return null
+  }
+
   // Fetch students from API
   const fetchStudents = async () => {
     try {
       setLoading(true)
       setError('')
-      // Note: This would need to be updated to get students by school ID from token
-      const response = await studentService.getAllStudents()
+      const schoolId = getSchoolIdFromToken()
+      const response = schoolId
+        ? await studentService.getStudentsBySchool(schoolId)
+        : await studentService.getAllStudents()
       
       if (response.success) {
         const transformedStudents = response.data.map(transformStudentToUI)
@@ -406,7 +424,8 @@ const StudentsManagement: React.FC = () => {
                     
                     try {
                       const formData = new FormData(e.target as HTMLFormElement)
-                      const studentData = {
+                    const tokenSchoolId = getSchoolIdFromToken()
+                    const studentData = {
                         FirstName: formData.get('firstName') as string,
                         LastName: formData.get('lastName') as string,
                         StudentId: formData.get('studentId') as string,
@@ -416,7 +435,7 @@ const StudentsManagement: React.FC = () => {
                         ParentName: formData.get('parentName') as string,
                         ParentPhoneNo: formData.get('parentPhone') as string,
                         StudentPassword: formData.get('password') as string,
-                        SchoolId: 1 // This should come from the user's token/school context
+                      SchoolId: tokenSchoolId ?? 1 // fallback if token missing
                       }
                       
                       const response = await studentService.createStudent(studentData)
