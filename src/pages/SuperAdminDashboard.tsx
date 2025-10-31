@@ -24,7 +24,16 @@ const SuperAdminDashboard: React.FC = () => {
       const response = await dashboardService.getDashboardStats(schoolId)
       
       if (response.success) {
-        setDashboardData(response.data)
+        const d: any = response.data
+        const parsed: DashboardStats = {
+          totalStudents: Number(d.totalStudents ?? 0),
+          activeStudents: Number(d.activeStudents ?? 0),
+          totalRevenue: Number(d.totalRevenue ?? 0),
+          averageRevenue: Number(d.averageRevenue ?? 0),
+          contentDownloads: Number(d.contentDownloads ?? 0),
+          schools: d.schools || []
+        }
+        setDashboardData(parsed)
       } else {
         setError('Failed to fetch dashboard data')
       }
@@ -47,10 +56,6 @@ const SuperAdminDashboard: React.FC = () => {
     setSelectedSchool(schoolId)
   }
 
-  // Mock data for other cards (keeping as requested)
-  const mockStats = {
-    contentDownloads: 3450
-  }
 
   // Calculate adoption rate from real data
   const calculateAdoptionRate = () => {
@@ -151,7 +156,7 @@ const SuperAdminDashboard: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-slate-400 font-poppins">Content Downloads</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{mockStats.contentDownloads.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.contentDownloads.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
                   </p>

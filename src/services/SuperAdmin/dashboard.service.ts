@@ -13,6 +13,7 @@ export interface DashboardStats {
   activeStudents: number;
   totalRevenue: number;
   averageRevenue: number;
+  contentDownloads: number;
   schools: School[];
 }
 
