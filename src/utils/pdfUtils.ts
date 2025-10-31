@@ -166,23 +166,21 @@ export async function generatePaymentInvoicePdf(args: {
   y += 16;
   doc.setFont('helvetica', 'bold');
 
-  // Column positions (shifted left and packed towards the right to avoid cropping)
+  // Column positions - adjusted for removed Total/Paid/Left columns in table row
   const col = {
     date: pagePadding,
-    total: rightX - 600,   // shift left slightly for more right margin
-    paid: rightX - 490,
-    left: rightX - 380,
-    method: rightX - 270,
-    status: rightX - 170,
-    txnid: rightX - 90,
-    invoice: rightX,
+    method: rightX - 600,   // Adjusted spacing for remaining columns
+    status: rightX - 490,
+    txnid: rightX - 320,
+    invoice: rightX - 150,
+    // Footer totals columns (used at bottom)
+    total: rightX - 230,
+    paid: rightX - 120,
+    left: rightX - 50,
   } as const;
 
   doc.setFontSize(11);
   doc.text('Date', col.date, y);
-  doc.text('Total Amount to Pay', col.total, y, { align: 'right' });
-  doc.text('Amount Paid', col.paid, y, { align: 'right' });
-  doc.text('Amount Left to Pay', col.left, y, { align: 'right' });
   doc.text('Method', col.method, y, { align: 'right' });
   doc.text('Status', col.status, y, { align: 'right' });
   doc.text('Txn ID', col.txnid, y, { align: 'right' });
@@ -196,16 +194,13 @@ export async function generatePaymentInvoicePdf(args: {
   const dateDisplay = new Date(row.date).toLocaleDateString();
   doc.setFontSize(11);
   doc.text(dateDisplay, col.date, y);
-  doc.text(`$${row.totalAmount.toFixed(2)}`, col.total, y, { align: 'right' });
-  doc.text(`$${row.amountPaid.toFixed(2)}`, col.paid, y, { align: 'right' });
-  doc.text(`$${row.amountLeftToPay.toFixed(2)}`, col.left, y, { align: 'right' });
   // Avoid emoji and long text to prevent cropping
   const methodLabel = row.method === 'Orange Money' ? 'Orange Money' : row.method;
   doc.text(methodLabel, col.method, y, { align: 'right' });
   doc.text(row.status, col.status, y, { align: 'right' });
   doc.text(row.txnid || '', col.txnid, y, { align: 'right' });
   // Truncate invoice if too long
-  const invoiceText = row.invoice && row.invoice.length > 20 ? `${row.invoice.slice(0, 20)}…` : row.invoice;
+  const invoiceText = row.invoice && row.invoice.length > 25 ? `${row.invoice.slice(0, 25)}…` : row.invoice;
   doc.text(invoiceText, col.invoice, y, { align: 'right' });
 
   // Footer line and totals (replace Subtotal with three totals at the bottom)
@@ -214,15 +209,15 @@ export async function generatePaymentInvoicePdf(args: {
   y += 22;
   doc.setFont('helvetica', 'bold');
   // Labels
-  doc.text('Total Amount to Pay', col.total, y, { align: 'right' });
-  doc.text('Amount Paid', col.paid, y, { align: 'right' });
-  doc.text('Amount Left to Pay', col.left, y, { align: 'right' });
-  // Values
-  y += 16;
-  doc.setFont('helvetica', 'normal');
-  doc.text(`$${row.totalAmount.toFixed(2)}`, col.total, y, { align: 'right' });
-  doc.text(`$${row.amountPaid.toFixed(2)}`, col.paid, y, { align: 'right' });
-  doc.text(`$${row.amountLeftToPay.toFixed(2)}`, col.left, y, { align: 'right' });
+  // doc.text('Total Amount to Pay', col.total, y, { align: 'right' });
+  // doc.text('Amount Paid', col.paid, y, { align: 'right' });
+  // doc.text('Amount Left to Pay', col.left, y, { align: 'right' });
+  // // Values
+  // y += 16;
+  // doc.setFont('helvetica', 'normal');
+  // doc.text(`$${row.totalAmount.toFixed(2)}`, col.total, y, { align: 'right' });
+  // doc.text(`$${row.amountPaid.toFixed(2)}`, col.paid, y, { align: 'right' });
+  // doc.text(`$${row.amountLeftToPay.toFixed(2)}`, col.left, y, { align: 'right' });
 
   // Footer note
   y += 40;

@@ -4,12 +4,14 @@ import Layout from '../../components/Layout'
 //   DocumentArrowDownIcon
 // } from '@heroicons/react/24/outline'
 import paymentService, { PaymentStatus, PaymentHistoryItem } from '../../services/schoolAdmin/payment.service'
+import { generatePaymentInvoicePdf } from '../../utils/pdfUtils'
 
 const SchoolBilling: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [showStudentLimitModal, setShowStudentLimitModal] = useState(false)
   const [paymentData, setPaymentData] = useState<PaymentStatus | null>(null)
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryItem[]>([])
+  const [schoolName, setSchoolName] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [paymentProcessing, setPaymentProcessing] = useState(false)
@@ -38,6 +40,7 @@ const SchoolBilling: React.FC = () => {
       
       if (response.success) {
         setPaymentData(response.data)
+        setSchoolName(response.data.schoolName || 'School')
       } else {
         setError('Failed to fetch payment status')
       }
@@ -56,6 +59,7 @@ const SchoolBilling: React.FC = () => {
       
       if (response.success) {
         setPaymentHistory(response.data.payments)
+        setSchoolName(response.data.schoolName || paymentData?.schoolName || 'School')
       } else {
         console.error('Failed to fetch payment history')
       }
@@ -191,6 +195,39 @@ const SchoolBilling: React.FC = () => {
       ? parseInt(additionalStudents || '0')
       : (additionalStudents || 0)
     return parseFloat((costPerStudent * numericAdditional).toFixed(2))
+  }
+
+  // Handle invoice download
+  const handleDownloadInvoice = async (payment: PaymentHistoryItem) => {
+    try {
+      const invoiceDate = new Date(payment.paymentTime)
+      const dueDate = new Date(invoiceDate)
+      dueDate.setDate(dueDate.getDate() + 14)
+
+      const invoiceNumber = payment.orderId || `INV-${invoiceDate.getTime()}`
+      const amountPaid = formatPaymentStatus(payment.status) === 'Paid' ? parseFloat(payment.amount) : 0
+      const amountLeft = parseFloat(payment.amount) - amountPaid
+
+      await generatePaymentInvoicePdf({
+        schoolName: schoolName || paymentData?.schoolName || 'School',
+        invoiceNumber,
+        invoiceDate,
+        dueDate,
+        row: {
+          date: payment.paymentTime,
+          totalAmount: parseFloat(payment.amount || '0'),
+          amountPaid: amountPaid || 0,
+          amountLeftToPay: amountLeft || 0,
+          method: 'Orange Money',
+          status: formatPaymentStatus(payment.status),
+          invoice: payment.orderId,
+          txnid: payment.transactionId || ''
+        }
+      })
+    } catch (error) {
+      console.error('Error generating invoice:', error)
+      setError('Failed to generate invoice')
+    }
   }
 
   // Handle student limit increase payment
@@ -391,9 +428,9 @@ const SchoolBilling: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
                     Transaction ID
                   </th>
-                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins hidden sm:table-cell">
                     Actions
-                  </th> */}
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-slate-800 divide-y divide-slate-700">
@@ -421,18 +458,29 @@ const SchoolBilling: React.FC = () => {
                         {payment.orderId}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-poppins">
-                        {payment.transactionId || 'N/A'}
+                        <div className="flex flex-col gap-2">
+                          <span>{payment.transactionId || 'N/A'}</span>
+                          <button
+                            className="sm:hidden px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-md w-full text-xs"
+                            onClick={() => handleDownloadInvoice(payment)}
+                          >
+                            Download PDF
+                          </button>
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {/* <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
-                          <DocumentArrowDownIcon className="h-4 w-4" />
-                        </button> */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium hidden sm:table-cell">
+                        <button
+                          className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-md text-xs"
+                          onClick={() => handleDownloadInvoice(payment)}
+                        >
+                          Download PDF
+                        </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-slate-400 font-poppins">
+                    <td colSpan={8} className="px-6 py-8 text-center text-slate-400 font-poppins">
                       No payment history found
                     </td>
                   </tr>
