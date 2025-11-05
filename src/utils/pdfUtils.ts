@@ -1,6 +1,15 @@
 // Lightweight PDF invoice generator using jsPDF. Draws text and lines directly (no DOM capture).
 // If jsPDF is not installed yet, run: npm i jspdf
 
+// Currency formatting utility for GNF
+const formatCurrency = (amount: number, decimals: number = 0): string => {
+  const formatted = amount.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  })
+  return `GNF ${formatted}`
+}
+
 // Helper function to load logo as image data for jsPDF
 async function loadLogoAsImageData(): Promise<string | null> {
   try {
@@ -281,9 +290,9 @@ export async function generatePaymentInvoicePdf(args: {
   doc.setFont('helvetica', 'bold');
   doc.text('Totals', rightX, summaryTopY, { align: 'right' });
   doc.setFont('helvetica', 'normal');
-  doc.text(`Total: $${args.row.totalAmount.toFixed(2)}`, rightX, summaryTopY + 14, { align: 'right' });
-  doc.text(`Paid: $${args.row.amountPaid.toFixed(2)}`, rightX, summaryTopY + 28, { align: 'right' });
-  doc.text(`Left: $${args.row.amountLeftToPay.toFixed(2)}`, rightX, summaryTopY + 42, { align: 'right' });
+  doc.text(`Total: ${formatCurrency(args.row.totalAmount, 2)}`, rightX, summaryTopY + 14, { align: 'right' });
+  doc.text(`Paid: ${formatCurrency(args.row.amountPaid, 2)}`, rightX, summaryTopY + 28, { align: 'right' });
+  doc.text(`Left: ${formatCurrency(args.row.amountLeftToPay, 2)}`, rightX, summaryTopY + 42, { align: 'right' });
 
   // Table header
   y += 24;

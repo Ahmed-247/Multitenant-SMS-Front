@@ -9,6 +9,7 @@ import {
   PowerIcon
 } from '@heroicons/react/24/outline'
 import schoolService, { School, CreateSchoolRequest } from '../../services/SuperAdmin/school.service'
+import { formatCurrency } from '../../utils/currencyUtils'
 
 interface SchoolUI {
   id: string
@@ -40,6 +41,7 @@ const SchoolsManagement: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [numberOfAdmins, setNumberOfAdmins] = useState(1) // Start with 1 admin (required)
 
   // Prevent body scrolling when modals are open
   useEffect(() => {
@@ -217,7 +219,11 @@ const SchoolsManagement: React.FC = () => {
             <p className="text-slate-400 mt-2 font-poppins">Manage all schools and their administrators</p>
           </div>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setShowAddModal(true)
+              setNumberOfAdmins(1) // Reset to 1 admin when opening modal
+              setError('') // Clear any previous errors
+            }}
             className="btn-primary flex items-center space-x-2"
             disabled={loading}
           >
@@ -315,7 +321,7 @@ const SchoolsManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white font-poppins">
-                          ${school.paymentAmount.toLocaleString()}
+                          {formatCurrency(school.paymentAmount)}
                         </div>
                         <div className="text-sm text-slate-400 font-poppins">
                           Student Limit: {school.studentLimit}
@@ -378,6 +384,11 @@ const SchoolsManagement: React.FC = () => {
             <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Add New School</h3>
+                {error && (
+                  <div className="mb-4 rounded-lg bg-red-900/30 border border-red-500/30 p-3">
+                    <div className="text-sm text-red-400 font-poppins">{error}</div>
+                  </div>
+                )}
                 <form
                   className="space-y-4"
                   onSubmit={async (e) => {
@@ -385,15 +396,50 @@ const SchoolsManagement: React.FC = () => {
                     setSubmitting(true)
                     
                     try {
+                      setError('') // Clear previous errors
                       const formData = new FormData(e.target as HTMLFormElement)
+                      // Build admins array from form data
+                      const admins: Array<{ AdminName: string; AdminEmail: string; AdminPassword: string }> = []
+                      
+                      for (let i = 0; i < numberOfAdmins; i++) {
+                        const adminName = formData.get(`adminName_${i}`) as string
+                        const adminEmail = formData.get(`adminEmail_${i}`) as string
+                        const adminPassword = formData.get(`adminPassword_${i}`) as string
+                        
+                        // First admin is required, others are optional
+                        if (i === 0) {
+                          if (!adminName || !adminEmail || !adminPassword) {
+                            setError('First admin: Name, Email, and Password are required')
+                            setSubmitting(false)
+                            return
+                          }
+                        }
+                        
+                        // If any field is provided for optional admins, all must be provided
+                        if (i > 0 && (adminName || adminEmail || adminPassword)) {
+                          if (!adminName || !adminEmail || !adminPassword) {
+                            setError(`Admin ${i + 1}: If provided, Name, Email, and Password are all required`)
+                            setSubmitting(false)
+                            return
+                          }
+                        }
+                        
+                        // Add admin if all fields are present
+                        if (adminName && adminEmail && adminPassword) {
+                          admins.push({
+                            AdminName: adminName,
+                            AdminEmail: adminEmail,
+                            AdminPassword: adminPassword
+                          })
+                        }
+                      }
+
                       const schoolData: CreateSchoolRequest = {
                         SchoolName: formData.get('name') as string,
                         SchoolAddress: formData.get('address') as string,
                         SchoolPhone: formData.get('phone') as string,
                         SchoolEmail: formData.get('email') as string,
-                        AdminName: formData.get('adminName') as string,
-                        AdminEmail: formData.get('adminEmail') as string,
-                        AdminPassword: formData.get('adminPassword') as string,
+                        admins: admins,
                         StudentLimit: parseInt(formData.get('studentLimit') as string),
                         PaymentAmount: parseFloat(formData.get('paymentAmount') as string) || undefined,
                         PlanMonthDuration: parseInt(formData.get('planMonthDuration') as string) || undefined
@@ -405,14 +451,15 @@ const SchoolsManagement: React.FC = () => {
                         // Refresh the schools list
                         await fetchSchools()
                         setShowAddModal(false)
+                        setNumberOfAdmins(1) // Reset to 1 admin
                         // Reset form
                         ;(e.target as HTMLFormElement).reset()
                       } else {
                         setError('Failed to create school')
                       }
-                    } catch (error) {
+                    } catch (error: any) {
                       console.error('Error creating school:', error)
-                      setError('Failed to create school')
+                      setError(error?.message || 'Failed to create school')
                     } finally {
                       setSubmitting(false)
                     }
@@ -462,37 +509,74 @@ const SchoolsManagement: React.FC = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Name</label>
-                    <input
-                      type="text"
-                      name="adminName"
-                      className="input-field"
-                      placeholder="Enter admin name"
-                      required
-                    />
-                  </div>
+                  {/* Admin Fields */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm font-medium text-slate-300 font-poppins">Administrators</label>
+                      {numberOfAdmins < 3 && (
+                        <button
+                          type="button"
+                          onClick={() => setNumberOfAdmins(prev => Math.min(prev + 1, 3))}
+                          className="text-sm text-blue-400 hover:text-blue-300 font-poppins"
+                        >
+                          + Add Admin
+                        </button>
+                      )}
+                    </div>
+                    
+                    {Array.from({ length: numberOfAdmins }).map((_, index) => (
+                      <div key={index} className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-semibold text-white font-poppins">
+                            Admin {index + 1} {index === 0 && <span className="text-red-400">(Required)</span>}
+                          </h4>
+                          {index > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setNumberOfAdmins(prev => prev - 1)}
+                              className="text-sm text-red-400 hover:text-red-300 font-poppins"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Name</label>
+                            <input
+                              type="text"
+                              name={`adminName_${index}`}
+                              className="input-field"
+                              placeholder="Enter admin name"
+                              required={index === 0}
+                            />
+                          </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Email</label>
-                    <input
-                      type="email"
-                      name="adminEmail"
-                      className="input-field"
-                      placeholder="Enter admin email"
-                      required
-                    />
-                  </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Email</label>
+                            <input
+                              type="email"
+                              name={`adminEmail_${index}`}
+                              className="input-field"
+                              placeholder="Enter admin email"
+                              required={index === 0}
+                            />
+                          </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Password</label>
-                    <input
-                      type="password"
-                      name="adminPassword"
-                      className="input-field"
-                      placeholder="Enter admin password"
-                      required
-                    />
+                          <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Password</label>
+                            <input
+                              type="password"
+                              name={`adminPassword_${index}`}
+                              className="input-field"
+                              placeholder="Enter admin password"
+                              required={index === 0}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   <div>
@@ -527,9 +611,14 @@ const SchoolsManagement: React.FC = () => {
                       >
                         <option value="">Select duration</option>
                         <option value="1">1 Month</option>
+                        <option value="2">2 Months</option>
                         <option value="3">3 Months</option>
+                        <option value="4">4 Months</option>
+                        <option value="5">5 Months</option>
                         <option value="6">6 Months</option>
-                        <option value="12">12 Months</option>
+                        <option value="7">7 Months</option>
+                        <option value="8">8 Months</option>
+                        <option value="9">9 Months</option>
                       </select>
                       {/* <input
                         type="date"
@@ -542,7 +631,10 @@ const SchoolsManagement: React.FC = () => {
                   <div className="flex justify-end space-x-3 pt-6">
                     <button
                       type="button"
-                      onClick={() => setShowAddModal(false)}
+                      onClick={() => {
+                        setShowAddModal(false)
+                        setNumberOfAdmins(1) // Reset to 1 admin when closing modal
+                      }}
                       className="btn-secondary"
                       disabled={submitting}
                     >
@@ -694,9 +786,14 @@ const SchoolsManagement: React.FC = () => {
                       >
                         <option value="">Select duration</option>
                         <option value="1">1 Month</option>
+                        <option value="2">2 Months</option>
                         <option value="3">3 Months</option>
+                        <option value="4">4 Months</option>
+                        <option value="5">5 Months</option>
                         <option value="6">6 Months</option>
-                        <option value="12">12 Months</option>
+                        <option value="7">7 Months</option>
+                        <option value="8">8 Months</option>
+                        <option value="9">9 Months</option>
                       </select>
                     </div>
                   </div>
@@ -777,7 +874,7 @@ const SchoolsManagement: React.FC = () => {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Payment Amount</label>
-                        <p className="text-white font-poppins">${selectedSchool.paymentAmount.toLocaleString()}</p>
+                        <p className="text-white font-poppins">{formatCurrency(selectedSchool.paymentAmount)}</p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Plan Duration (Months)</label>

@@ -22,6 +22,12 @@ export interface School {
   }[];
 }
 
+export interface Admin {
+  AdminName: string;
+  AdminEmail: string;
+  AdminPassword: string;
+}
+
 export interface CreateSchoolRequest {
   SchoolName: string;
   SchoolAddress?: string;
@@ -30,9 +36,11 @@ export interface CreateSchoolRequest {
   StudentLimit?: number;
   PaymentAmount?: number;
   PlanMonthDuration?: number;
-  AdminName: string;
-  AdminEmail: string;
-  AdminPassword: string;
+  // Support both formats: admins array (new) or individual fields (backward compatibility)
+  admins?: Admin[];
+  AdminName?: string;
+  AdminEmail?: string;
+  AdminPassword?: string;
 }
 
 export interface CreateSchoolResponse {
@@ -40,13 +48,13 @@ export interface CreateSchoolResponse {
   message: string;
   data: {
     school: School;
-    admin: {
+    admins: {
       UserId: number;
       UserName: string;
       Email: string;
       Role: string;
       SchoolId: number;
-    };
+    }[];
   };
 }
 

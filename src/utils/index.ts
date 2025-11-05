@@ -25,3 +25,6 @@ export {
   handleError,
   handleErrorWithPrefix
 } from './errorUtils';
+
+// Currency utilities
+export { formatCurrency } from './currencyUtils';

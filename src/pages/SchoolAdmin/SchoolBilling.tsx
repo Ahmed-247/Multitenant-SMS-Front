@@ -5,6 +5,7 @@ import Layout from '../../components/Layout'
 // } from '@heroicons/react/24/outline'
 import paymentService, { PaymentStatus, PaymentHistoryItem } from '../../services/schoolAdmin/payment.service'
 import { generatePaymentInvoicePdf } from '../../utils/pdfUtils'
+import { formatCurrency } from '../../utils/currencyUtils'
 
 const SchoolBilling: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
@@ -315,7 +316,7 @@ const SchoolBilling: React.FC = () => {
             <div>
               <h3 className="text-lg font-medium text-white mb-2 font-poppins">Standard Plan</h3>
               <p className="text-3xl font-bold text-blue-400">
-                ${paymentData?.paymentAmount || 0}
+                {formatCurrency(paymentData?.paymentAmount || 0)}
               </p>
               <p className="text-sm text-slate-400 font-poppins mt-1">
                 {paymentData?.planMonthDuration} months duration
@@ -441,7 +442,7 @@ const SchoolBilling: React.FC = () => {
                         {new Date(payment.paymentTime).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white font-poppins">
-                        ${payment.amount}
+                        {formatCurrency(payment.amount)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -499,7 +500,7 @@ const SchoolBilling: React.FC = () => {
                 <div className="space-y-4">
                   <div className="bg-slate-700 p-4 rounded-xl">
                     <h4 className="font-medium text-white font-poppins">Standard Plan</h4>
-                    <p className="text-sm text-slate-400 font-poppins">Amount: ${paymentData?.paymentAmount || 0}</p>
+                    <p className="text-sm text-slate-400 font-poppins">Amount: {formatCurrency(paymentData?.paymentAmount || 0)}</p>
                   </div>
                   
                   <div>
@@ -609,7 +610,7 @@ const SchoolBilling: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-300 font-poppins">Additional Cost</span>
-              <span className="text-white font-poppins">${calculateAdditionalCost()}</span>
+              <span className="text-white font-poppins">{formatCurrency(calculateAdditionalCost())}</span>
             </div>
           </div>
 

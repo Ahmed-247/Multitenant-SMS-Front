@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline'
 import paymentsService, { Payment } from '../../services/SuperAdmin/payments.service'
 import { generatePaymentInvoicePdf } from '../../utils/pdfUtils'
+import { formatCurrency } from '../../utils/currencyUtils'
 
 interface Subscription {
   id: string
@@ -257,7 +258,7 @@ const SubscriptionsManagement: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-400 font-poppins">Total Revenue</p>
-                <p className="text-2xl font-bold text-white font-poppins">${totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-white font-poppins">{formatCurrency(totalRevenue)}</p>
               </div>
             </div>
           </div>
@@ -331,7 +332,7 @@ const SubscriptionsManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-white font-poppins">
-                          ${subscription.price}
+                          {formatCurrency(subscription.price)}
                         </div>
                         <div className="text-sm text-slate-400 font-poppins">
                           Next: {new Date(subscription.nextPayment).toLocaleDateString()}
@@ -419,13 +420,13 @@ const SubscriptionsManagement: React.FC = () => {
                               {new Date(payment.date).toLocaleDateString()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white font-poppins">
-                              ${totalAmount.toFixed(2)}
+                              {formatCurrency(totalAmount, 2)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-400 font-poppins">
-                              ${amountPaid.toFixed(2)}
+                              {formatCurrency(amountPaid, 2)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-400 font-poppins">
-                              ${amountLeftToPay.toFixed(2)}
+                              {formatCurrency(amountLeftToPay, 2)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">

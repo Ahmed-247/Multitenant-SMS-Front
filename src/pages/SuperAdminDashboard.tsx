@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline'
 import dashboardService, { type DashboardStats } from '../services/SuperAdmin/dashboard.service'
 import { handleError } from '../utils/errorUtils'
+import { formatCurrency } from '../utils/currencyUtils'
 
 const SuperAdminDashboard: React.FC = () => {
   const [selectedSchool, setSelectedSchool] = useState<string>('all')
@@ -260,7 +261,7 @@ const SuperAdminDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Total Platform Revenue' : 'School Revenue'}
                   </p>
-                  <p className="text-2xl font-bold text-white font-poppins">${dashboardData.totalRevenue.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{formatCurrency(dashboardData.totalRevenue)}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'All time' : 'This school'}
                   </p>
@@ -274,7 +275,7 @@ const SuperAdminDashboard: React.FC = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-slate-400 font-poppins">Average Revenue per School</p>
-                    <p className="text-2xl font-bold text-white font-poppins">${dashboardData.averageRevenue.toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-white font-poppins">{formatCurrency(dashboardData.averageRevenue)}</p>
                     <p className="text-sm text-slate-400 font-poppins">Monthly average</p>
                   </div>
                 </div>

@@ -151,7 +151,7 @@ const Login: React.FC = () => {
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               ) : (
-                'Sign in'
+                'Se connecter'
               )}
             </button>
             
@@ -163,7 +163,7 @@ const Login: React.FC = () => {
               <svg className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <span className="font-poppins text-sm sm:text-base text-center">Contact and register your school</span>
+              <span className="font-poppins text-sm sm:text-base text-center">Nous contacter pour inscrire votre école</span>
             </button>
           </div>
 
