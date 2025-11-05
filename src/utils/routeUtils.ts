@@ -6,6 +6,7 @@ export const routeAccessMap: Record<string, string[]> = {
   "/super-admin/schools": ["superadmin"],
   "/super-admin/subscriptions": ["superadmin"],
   "/super-admin/content": ["superadmin"],
+  "/super-admin/contacts": ["superadmin"],
   "/school-admin": ["admin", "user"],
   "/school-admin/students": ["admin", "user"],
   "/school-admin/profile": ["admin", "user"],

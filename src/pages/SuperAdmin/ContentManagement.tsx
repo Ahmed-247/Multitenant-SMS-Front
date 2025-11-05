@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import {
-  
   MagnifyingGlassIcon,
-  DocumentTextIcon,
   // VideoCameraIcon,
-  // PhotoIcon
+  // PhotoIcon,
+  // DocumentTextIcon
 } from '@heroicons/react/24/outline'
 
 interface ContentItem {
@@ -22,9 +21,16 @@ interface ContentItem {
   assignedSchools: string[]
 }
 
+interface EBookItem {
+  id: string
+  title: string
+  description: string
+}
+
 const ContentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'content' | 'pdf'>('content')
   const [searchTerm, setSearchTerm] = useState('')
+  const [ebookSearchTerm, setEbookSearchTerm] = useState('')
   const [selectedSection, setSelectedSection] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
@@ -42,6 +48,20 @@ const ContentManagement: React.FC = () => {
       document.body.style.overflow = 'unset'
     }
   }, [showUploadModal])
+
+  // Mock eBook data
+  const [ebooks] = useState<EBookItem[]>([
+    {
+      id: '1',
+      title: 'Mathematics Fundamentals',
+      description: 'A comprehensive guide to fundamental mathematics concepts covering algebra, geometry, and basic calculus principles for students at all levels.'
+    },
+    {
+      id: '2',
+      title: 'Introduction to Physics',
+      description: 'An introductory textbook exploring the fundamental principles of physics including mechanics, thermodynamics, and modern physics applications.'
+    }
+  ])
 
   // Hardcoded data based on the table structure
   const [content, setContent] = useState<ContentItem[]>([
@@ -240,6 +260,11 @@ const ContentManagement: React.FC = () => {
     (selectedSubject === '' || item.subject === selectedSubject)
   )
 
+  const filteredEbooks = ebooks.filter(ebook =>
+    ebook.title.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ||
+    ebook.description.toLowerCase().includes(ebookSearchTerm.toLowerCase())
+  )
+
   // const getTypeIcon = (type: string) => {
   //   switch (type) {
   //     case 'Document':
@@ -286,7 +311,7 @@ const ContentManagement: React.FC = () => {
                   : 'text-slate-300 hover:text-white hover:bg-slate-600'
               }`}
             >
-              Content Management
+              Courses
             </button>
             <button
               onClick={() => setActiveTab('pdf')}
@@ -296,7 +321,7 @@ const ContentManagement: React.FC = () => {
                   : 'text-slate-300 hover:text-white hover:bg-slate-600'
               }`}
             >
-              PDF Content
+              EBook Library
             </button>
           </div>
         </div>
@@ -405,16 +430,51 @@ const ContentManagement: React.FC = () => {
 
         {/* PDF Content Tab */}
         {activeTab === 'pdf' && (
-          <div className="card">
-            <div className="text-center py-12">
-              <div className="mx-auto w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center mb-4">
-                <DocumentTextIcon className="h-12 w-12 text-slate-400" />
+          <>
+            {/* Search Bar */}
+            <div className="card">
+              <div className="relative">
+                <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search eBooks..."
+                  className="input-field pl-10"
+                  value={ebookSearchTerm}
+                  onChange={(e) => setEbookSearchTerm(e.target.value)}
+                />
               </div>
-              <h3 className="text-xl font-semibold text-white font-poppins mb-2">PDF Content Management</h3>
-              <p className="text-slate-400 font-poppins mb-6">Manage and organize PDF educational content</p>
-              <p className="text-sm text-slate-500 font-poppins">PDF content management features coming soon...</p>
             </div>
-          </div>
+
+            {/* eBook Table */}
+            <div className="card">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-700">
+                  <thead className="bg-slate-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                        Title
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                        Description
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-slate-800 divide-y divide-slate-700">
+                    {filteredEbooks.map((ebook) => (
+                      <tr key={ebook.id} className="hover:bg-slate-700 transition-colors duration-200">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white font-poppins">{ebook.title}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-white font-poppins">{ebook.description}</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
 
         {/* Upload Content Modal */}

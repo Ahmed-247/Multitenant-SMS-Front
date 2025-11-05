@@ -117,7 +117,7 @@ const SchoolAdminDashboard: React.FC = () => {
                   <UserGroupIcon className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Capacité Étudiants (Plan)</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Capacité Élèves (Plan)</p>
                   <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Limite actuelle</p>
                 </div>
@@ -130,7 +130,7 @@ const SchoolAdminDashboard: React.FC = () => {
                   <AcademicCapIcon className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Étudiants Actifs</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Élèves Actifs</p>
                   <p className="text-2xl font-bold text-white font-poppins">{stats.activeStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Actuellement actifs</p>
                 </div>

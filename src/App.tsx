@@ -1,11 +1,13 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import Login from './pages/Login'
+import ContactRegistration from './pages/ContactRegistration'
 import SuperAdminDashboard from './pages/SuperAdminDashboard'
 import SchoolAdminDashboard from './pages/SchoolAdminDashboard'
 import SchoolsManagement from './pages/SuperAdmin/SchoolsManagement'
 import SubscriptionsManagement from './pages/SuperAdmin/SubscriptionsManagement'
 import ContentManagement from './pages/SuperAdmin/ContentManagement'
+import ContactsManagement from './pages/SuperAdmin/ContactsManagement'
 import StudentsManagement from './pages/SchoolAdmin/StudentsManagement'
 import SchoolProfile from './pages/SchoolAdmin/SchoolProfile'
 import SchoolBilling from './pages/SchoolAdmin/SchoolBilling'
@@ -16,6 +18,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/contact-registration" element={<ContactRegistration />} />
           
           {/* Super Admin Routes */}
           <Route path="/super-admin" element={
@@ -36,6 +39,11 @@ function App() {
           <Route path="/super-admin/content" element={
             <ProtectedRoute allowedRoles={['superadmin']}>
               <ContentManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/super-admin/contacts" element={
+            <ProtectedRoute allowedRoles={['superadmin']}>
+              <ContactsManagement />
             </ProtectedRoute>
           } />
           

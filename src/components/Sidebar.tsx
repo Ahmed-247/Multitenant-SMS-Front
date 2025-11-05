@@ -7,8 +7,9 @@ import {
   DocumentTextIcon,
   UserGroupIcon,
   CogIcon,
-  AcademicCapIcon
+  EnvelopeIcon
 } from '@heroicons/react/24/outline'
+import bonecoleLogo from '../assets/bonecoleLogo.svg'
 
 const Sidebar: React.FC = () => {
   const [user, setUser] = useState<any>(null)
@@ -26,11 +27,12 @@ const Sidebar: React.FC = () => {
     { name: 'Schools', href: '/super-admin/schools', icon: BuildingOfficeIcon },
     { name: 'Subscriptions', href: '/super-admin/subscriptions', icon: CreditCardIcon },
     { name: 'Content', href: '/super-admin/content', icon: DocumentTextIcon },
+    { name: 'Contacts', href: '/super-admin/contacts', icon: EnvelopeIcon },
   ]
 
   const schoolAdminNavItems = [
     { name: 'Tableau de Bord', href: '/school-admin', icon: HomeIcon },
-    { name: 'Étudiants', href: '/school-admin/students', icon: UserGroupIcon },
+    { name: 'Élèves', href: '/school-admin/students', icon: UserGroupIcon },
     { name: 'Profil', href: '/school-admin/profile', icon: CogIcon },
     { name: 'Facturation', href: '/school-admin/billing', icon: CreditCardIcon },
     { name: 'Contenu', href: '/school-admin/content', icon: DocumentTextIcon },
@@ -41,14 +43,8 @@ const Sidebar: React.FC = () => {
   return (
     <div className="w-64 bg-slate-800 shadow-xl border-r border-slate-700 min-h-screen flex-shrink-0">
       <div className="p-6">
-        <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <AcademicCapIcon className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white font-poppins">Système Scolaire</h2>
-            <p className="text-xs text-slate-400 font-poppins">Plateforme de Gestion</p>
-          </div>
+        <div className="flex items-center justify-center">
+          <img src={bonecoleLogo} alt="Bonecole Logo" className="h-12" />
         </div>
       </div>
       
