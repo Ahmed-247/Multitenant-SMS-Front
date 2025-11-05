@@ -817,11 +817,11 @@ const SchoolsManagement: React.FC = () => {
                     <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Statistics</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Total Students</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Nombre total d'élèves</label>
                         <p className="text-white font-poppins">{selectedSchool.totalStudents}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Active Students</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Nombre d'élèves actifs</label>
                         <p className="text-white font-poppins">{selectedSchool.activeStudents}</p>
                       </div>
                       <div>

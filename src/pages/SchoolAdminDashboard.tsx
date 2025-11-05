@@ -3,7 +3,9 @@ import Layout from '../components/Layout'
 import {
   UserGroupIcon,
   AcademicCapIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ClockIcon,
+  PlayIcon
 } from '@heroicons/react/24/outline'
 import schoolAdminDashboardService, { type SchoolAdminStats } from '../services/schoolAdmin/dashboard.service'
 import { getToken, parseJwt } from '../utils/tokenUtils'
@@ -48,11 +50,15 @@ const SchoolAdminDashboard: React.FC = () => {
       
       if (response.success) {
         const d: any = response.data
+        const school = d.school || {}
         const parsed: SchoolAdminStats = {
-          totalStudents: Number(d.totalStudents ?? 0),
+          allowedStudents: Number(school.allowedStudents ?? 0), // From StudentLimit
+          totalStudents: Number(school.totalStudents ?? 0), // From TotalStudents
           activeStudents: Number(d.activeStudents ?? 0),
           inactiveStudents: Number(d.inactiveStudents ?? 0),
-          contentDownloads: Number(d.contentDownloads ?? 0),
+          contentDownloads: Number(school.contentDownloads ?? 0),
+          sessions: Number(school.sessions ?? 0),
+          duration: Number(school.duration ?? 0),
         }
         setStats(parsed)
       } else {
@@ -72,7 +78,21 @@ const SchoolAdminDashboard: React.FC = () => {
     fetchStats()
   }, [])
 
-  // const contentDownloads = stats?.contentDownloads ?? 0
+  // Format duration in minutes to human-readable format
+  const formatDuration = (minutes: number): string => {
+    if (minutes === 0) return '0m'
+    
+    const days = Math.floor(minutes / (24 * 60))
+    const hours = Math.floor((minutes % (24 * 60)) / 60)
+    const mins = minutes % 60
+    
+    const parts: string[] = []
+    if (days > 0) parts.push(`${days}d`)
+    if (hours > 0) parts.push(`${hours}h`)
+    if (mins > 0 || parts.length === 0) parts.push(`${mins}m`)
+    
+    return parts.join(' ')
+  }
 
 
 
@@ -117,8 +137,8 @@ const SchoolAdminDashboard: React.FC = () => {
                   <UserGroupIcon className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Capacité Élèves (Plan)</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Places disponibles</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{stats.allowedStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Limite actuelle</p>
                 </div>
               </div>
@@ -130,7 +150,7 @@ const SchoolAdminDashboard: React.FC = () => {
                   <AcademicCapIcon className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Élèves Actifs</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs</p>
                   <p className="text-2xl font-bold text-white font-poppins">{stats.activeStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Actuellement actifs</p>
                 </div>
@@ -146,6 +166,45 @@ const SchoolAdminDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-slate-400 font-poppins">Téléchargements de Contenu</p>
                   <p className="text-2xl font-bold text-white font-poppins">{Number(stats.contentDownloads ?? 0).toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Total des téléchargements</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-cyan-600/20 rounded-xl">
+                  <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Depuis le profil de l'école</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-orange-600/20 rounded-xl">
+                  <ClockIcon className="h-6 w-6 text-orange-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Sessions</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{(stats.sessions ?? 0).toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Total des sessions</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-pink-600/20 rounded-xl">
+                  <PlayIcon className="h-6 w-6 text-pink-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Duration</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{formatDuration(stats.duration ?? 0)}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Temps total</p>
                 </div>
               </div>
             </div>

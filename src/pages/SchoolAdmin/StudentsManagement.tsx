@@ -59,6 +59,7 @@ const StudentsManagement: React.FC = () => {
 
   const [students, setStudents] = useState<StudentUI[]>([])
   const [totalStudentsCount, setTotalStudentsCount] = useState<number>(0)
+  const [totalStudentsFromSchool, setTotalStudentsFromSchool] = useState<number>(0) // TotalStudents from school
 
   // Transform API student data to UI format
   const transformStudentToUI = (student: Student): StudentUI => ({
@@ -114,6 +115,10 @@ const StudentsManagement: React.FC = () => {
           respAny?.data?.total ??
           transformedStudents.length
         setTotalStudentsCount(Number(possibleCount) || 0)
+        
+        // Extract TotalStudents from API response
+        const totalStudents = respAny?.totalStudents ?? respAny?.data?.totalStudents ?? 0
+        setTotalStudentsFromSchool(Number(totalStudents) || 0)
       } else {
         setError('Failed to fetch students')
       }
@@ -257,14 +262,14 @@ const StudentsManagement: React.FC = () => {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="card">
             <div className="flex items-center">
               <div className="p-3 bg-blue-600/20 rounded-xl">
                 <UserGroupIcon className="h-6 w-6 text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Total des Élèves</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
                 <p className="text-2xl font-bold text-white font-poppins">{totalStudents}</p>
               </div>
             </div>
@@ -276,8 +281,21 @@ const StudentsManagement: React.FC = () => {
                 <AcademicCapIcon className="h-6 w-6 text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Élèves Actifs</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs</p>
                 <p className="text-2xl font-bold text-white font-poppins">{activeStudents}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="flex items-center">
+              <div className="p-3 bg-cyan-600/20 rounded-xl">
+                <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
+                <p className="text-2xl font-bold text-white font-poppins">{totalStudentsFromSchool}</p>
+                <p className="text-xs text-slate-500 font-poppins"></p>
               </div>
             </div>
           </div>
@@ -290,8 +308,9 @@ const StudentsManagement: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-400 font-poppins">Taux d'Adoption</p>
                 <p className="text-2xl font-bold text-white font-poppins">
-                  {totalStudents > 0 ? Math.round((activeStudents / totalStudents) * 100) : 0}%
+                  {totalStudentsFromSchool > 0 ? Math.round((totalStudentsCount * 100) / totalStudentsFromSchool) : 0}%
                 </p>
+                <p className="text-xs text-slate-500 font-poppins">Places disponibles × 100% ÷ Nombre total d'élèves</p>
               </div>
             </div>
           </div>

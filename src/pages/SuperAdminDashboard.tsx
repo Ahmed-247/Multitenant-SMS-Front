@@ -5,7 +5,9 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   DocumentArrowDownIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ClockIcon,
+  PlayIcon
 } from '@heroicons/react/24/outline'
 import dashboardService, { type DashboardStats } from '../services/SuperAdmin/dashboard.service'
 import { handleError } from '../utils/errorUtils'
@@ -26,11 +28,14 @@ const SuperAdminDashboard: React.FC = () => {
       if (response.success) {
         const d: any = response.data
         const parsed: DashboardStats = {
-          totalStudents: Number(d.totalStudents ?? 0),
+          allowedStudents: Number(d.allowedStudents ?? 0), // From StudentLimit
+          totalStudents: Number(d.totalStudents ?? 0), // From TotalStudents column
           activeStudents: Number(d.activeStudents ?? 0),
           totalRevenue: Number(d.totalRevenue ?? 0),
           averageRevenue: Number(d.averageRevenue ?? 0),
           contentDownloads: Number(d.contentDownloads ?? 0),
+          sessions: Number(d.sessions ?? 0),
+          duration: Number(d.duration ?? 0),
           schools: d.schools || []
         }
         setDashboardData(parsed)
@@ -57,11 +62,27 @@ const SuperAdminDashboard: React.FC = () => {
   }
 
 
-  // Calculate adoption rate from real data
+  // Calculate adoption rate: (Available seats * 100) / Total number of students in school
   const calculateAdoptionRate = () => {
     if (!dashboardData) return 0
     if (dashboardData.totalStudents === 0) return 0
-    return Math.round((dashboardData.activeStudents / dashboardData.totalStudents) * 100)
+    return Math.round((dashboardData.allowedStudents / dashboardData.totalStudents) * 100)
+  }
+
+  // Format duration in minutes to human-readable format
+  const formatDuration = (minutes: number): string => {
+    if (minutes === 0) return '0m'
+    
+    const days = Math.floor(minutes / (24 * 60))
+    const hours = Math.floor((minutes % (24 * 60)) / 60)
+    const mins = minutes % 60
+    
+    const parts: string[] = []
+    if (days > 0) parts.push(`${days}d`)
+    if (hours > 0) parts.push(`${hours}h`)
+    if (mins > 0 || parts.length === 0) parts.push(`${mins}m`)
+    
+    return parts.join(' ')
   }
 
   return (
@@ -125,8 +146,8 @@ const SuperAdminDashboard: React.FC = () => {
                   <UserGroupIcon className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Total Students</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Places disponibles</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.allowedStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
                   </p>
@@ -140,7 +161,7 @@ const SuperAdminDashboard: React.FC = () => {
                   <ChartBarIcon className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Active Students</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs</p>
                   <p className="text-2xl font-bold text-white font-poppins">{dashboardData.activeStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
@@ -173,7 +194,52 @@ const SuperAdminDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-slate-400 font-poppins">Adoption Rate</p>
                   <p className="text-2xl font-bold text-white font-poppins">{calculateAdoptionRate()}%</p>
                   <p className="text-sm text-slate-400 font-poppins">
-                    Active ÷ Total Students
+                    Places disponibles × 100% ÷ Nombre total d'élèves
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-cyan-600/20 rounded-xl">
+                  <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">
+                    {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-orange-600/20 rounded-xl">
+                  <ClockIcon className="h-6 w-6 text-orange-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Sessions</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.sessions.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">
+                    {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-pink-600/20 rounded-xl">
+                  <PlayIcon className="h-6 w-6 text-pink-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Duration</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{formatDuration(dashboardData.duration)}</p>
+                  <p className="text-sm text-slate-400 font-poppins">
+                    {selectedSchool === 'all' ? 'Total time' : 'This school'}
                   </p>
                 </div>
               </div>

@@ -17,6 +17,7 @@ const SchoolProfile: React.FC = () => {
     SchoolAddress: '',
     SchoolPhone: '',
     SchoolEmail: '',
+    TotalStudents: 0,
     AdminName: '',
     AdminEmail: ''
   })
@@ -25,7 +26,8 @@ const SchoolProfile: React.FC = () => {
   const [formData, setFormData] = useState({
     SchoolName: '',
     SchoolAddress: '',
-    SchoolPhone: ''
+    SchoolPhone: '',
+    TotalStudents: 0
   })
 
   // Fetch school profile on component mount
@@ -44,7 +46,8 @@ const SchoolProfile: React.FC = () => {
         setFormData({
           SchoolName: response.data.SchoolName,
           SchoolAddress: response.data.SchoolAddress,
-          SchoolPhone: response.data.SchoolPhone
+          SchoolPhone: response.data.SchoolPhone,
+          TotalStudents: response.data.TotalStudents || 0
         })
       } else {
         setError('Failed to fetch school profile' + response.message)
@@ -63,7 +66,8 @@ const SchoolProfile: React.FC = () => {
     setFormData({
       SchoolName: schoolData.SchoolName,
       SchoolAddress: schoolData.SchoolAddress,
-      SchoolPhone: schoolData.SchoolPhone
+      SchoolPhone: schoolData.SchoolPhone,
+      TotalStudents: schoolData.TotalStudents || 0
     })
   }
 
@@ -72,7 +76,8 @@ const SchoolProfile: React.FC = () => {
     setFormData({
       SchoolName: schoolData.SchoolName,
       SchoolAddress: schoolData.SchoolAddress,
-      SchoolPhone: schoolData.SchoolPhone
+      SchoolPhone: schoolData.SchoolPhone,
+      TotalStudents: schoolData.TotalStudents || 0
     })
   }
 
@@ -85,7 +90,8 @@ const SchoolProfile: React.FC = () => {
       const hasChanges = 
         formData.SchoolName !== schoolData.SchoolName ||
         formData.SchoolAddress !== schoolData.SchoolAddress ||
-        formData.SchoolPhone !== schoolData.SchoolPhone
+        formData.SchoolPhone !== schoolData.SchoolPhone ||
+        formData.TotalStudents !== schoolData.TotalStudents
 
       if (!hasChanges) {
         setIsEditing(false)
@@ -109,7 +115,7 @@ const SchoolProfile: React.FC = () => {
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -237,6 +243,22 @@ const SchoolProfile: React.FC = () => {
                           />
                         ) : (
                           <div className="text-white font-poppins bg-slate-600 p-3 rounded-lg">{schoolData.SchoolPhone}</div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Nombre total d'élèves</label>
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            min="0"
+                            className="input-field w-full bg-slate-600 border-slate-500 focus:border-blue-400 focus:ring-blue-400"
+                            value={formData.TotalStudents}
+                            onChange={(e) => handleInputChange('TotalStudents', parseInt(e.target.value, 10) || 0)}
+                            required
+                          />
+                        ) : (
+                          <div className="text-white font-poppins bg-slate-600 p-3 rounded-lg">{schoolData.TotalStudents || 0}</div>
                         )}
                       </div>
                     </div>

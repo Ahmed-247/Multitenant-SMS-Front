@@ -8,6 +8,7 @@ export interface SchoolProfile {
   SchoolAddress: string;
   SchoolPhone: string;
   SchoolEmail: string;
+  TotalStudents: number;
   AdminName: string | null;
   AdminEmail: string | null;
 }
@@ -22,6 +23,7 @@ export interface EditSchoolProfileRequest {
   SchoolName?: string;
   SchoolAddress?: string;
   SchoolPhone?: string;
+  TotalStudents?: number;
 }
 
 class SchoolProfileService extends BaseRequestService {

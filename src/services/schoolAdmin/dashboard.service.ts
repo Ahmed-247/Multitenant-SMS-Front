@@ -4,10 +4,13 @@ const ApiUrl = import.meta.env.VITE_API_URL;
 const API_URL = `${ApiUrl}`;
 
 export interface SchoolAdminStats {
-  totalStudents: number;
+  allowedStudents: number; // From StudentLimit
+  totalStudents: number; // From TotalStudents
   activeStudents: number;
   inactiveStudents: number;
   contentDownloads?: number;
+  sessions?: number;
+  duration?: number;
 }
 
 export interface SchoolAdminStatsResponse {

@@ -9,11 +9,14 @@ export interface School {
 }
 
 export interface DashboardStats {
-  totalStudents: number;
+  allowedStudents: number; // From StudentLimit (sum across schools)
+  totalStudents: number; // From TotalStudents column (sum across schools)
   activeStudents: number;
   totalRevenue: number;
   averageRevenue: number;
   contentDownloads: number;
+  sessions: number;
+  duration: number;
   schools: School[];
 }
 
