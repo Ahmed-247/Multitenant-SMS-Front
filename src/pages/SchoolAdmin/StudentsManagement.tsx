@@ -190,7 +190,7 @@ const StudentsManagement: React.FC = () => {
   }
 
   const handleDeleteStudent = async (studentId: string) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet élève ?')) {
       try {
         setLoading(true)
         const response = await studentService.deleteStudent(parseInt(studentId))
@@ -263,13 +263,25 @@ const StudentsManagement: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="card">
+            <div className="flex items-center">
+              <div className="p-3 bg-cyan-600/20 rounded-xl">
+                <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d’élèves (école)</p>
+                <p className="text-2xl font-bold text-white font-poppins">{totalStudentsFromSchool}</p>
+                <p className="text-xs text-slate-500 font-poppins"></p>
+              </div>
+            </div>
+          </div>
           <div className="card">
             <div className="flex items-center">
               <div className="p-3 bg-blue-600/20 rounded-xl">
                 <UserGroupIcon className="h-6 w-6 text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Places disponible (limite actuelle)</p>
                 <p className="text-2xl font-bold text-white font-poppins">{totalStudents}</p>
               </div>
             </div>
@@ -281,21 +293,8 @@ const StudentsManagement: React.FC = () => {
                 <AcademicCapIcon className="h-6 w-6 text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs</p>
+                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs (Actuellement actifs)</p>
                 <p className="text-2xl font-bold text-white font-poppins">{activeStudents}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="card">
-            <div className="flex items-center">
-              <div className="p-3 bg-cyan-600/20 rounded-xl">
-                <UserGroupIcon className="h-6 w-6 text-cyan-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
-                <p className="text-2xl font-bold text-white font-poppins">{totalStudentsFromSchool}</p>
-                <p className="text-xs text-slate-500 font-poppins"></p>
               </div>
             </div>
           </div>
@@ -310,7 +309,6 @@ const StudentsManagement: React.FC = () => {
                 <p className="text-2xl font-bold text-white font-poppins">
                   {totalStudentsFromSchool > 0 ? Math.round((totalStudentsCount * 100) / totalStudentsFromSchool) : 0}%
                 </p>
-                <p className="text-xs text-slate-500 font-poppins">Places disponibles × 100% ÷ Nombre total d'élèves</p>
               </div>
             </div>
           </div>
@@ -323,7 +321,7 @@ const StudentsManagement: React.FC = () => {
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search students by name, ID, or email..."
+                placeholder="Filtrer par Nom, No. identifiant, ou Email ..."
                 className="input-field pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -334,7 +332,7 @@ const StudentsManagement: React.FC = () => {
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
             >
-              <option value="">All Grades</option>
+              <option value="">Toutes les classes</option>
               {grades.map(grade => (
                 <option key={grade} value={grade}>{grade}</option>
               ))}
@@ -344,7 +342,7 @@ const StudentsManagement: React.FC = () => {
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
-              <option value="">All Status</option>
+              <option value="">Statut</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
              
@@ -359,16 +357,16 @@ const StudentsManagement: React.FC = () => {
               <thead className="bg-slate-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                    Student
+                    Élève
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                    Grade & Contact
+                    Classe et No. de téléphone
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                    Parent Info
+                    Parents
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                    Status
+                    Statut
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Actions
@@ -383,7 +381,7 @@ const StudentsManagement: React.FC = () => {
                         <div className="text-sm font-medium text-white">
                           {student.firstName} {student.lastName}
                         </div>
-                        <div className="text-sm text-slate-400">ID: {student.studentId}</div>
+                        <div className="text-sm text-slate-400">ID : {student.studentId}</div>
                         <div className="text-sm text-slate-400">{student.email}</div>
                       </div>
                     </td>
@@ -409,14 +407,14 @@ const StudentsManagement: React.FC = () => {
                         <button
                           onClick={() => handleEditStudent(student)}
                           className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
-                          title="Edit Student"
+                          title="Modifier l'élève"
                         >
                           <PencilIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleViewStudent(student)}
                           className="text-green-400 hover:text-green-300 transition-colors duration-200"
-                          title="View Details"
+                          title="Voir les détails"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
@@ -424,7 +422,7 @@ const StudentsManagement: React.FC = () => {
                         <button
                           onClick={() => handleDeleteStudent(student.id)}
                           className="text-red-400 hover:text-red-300 transition-colors duration-200"
-                          title="Delete Student"
+                          title="Supprimer l'élève"
                         >
                           <TrashIcon className="h-4 w-4" />
                         </button>
@@ -442,7 +440,7 @@ const StudentsManagement: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" style={{margin: 0}}>
             <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-6">Add New Student</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">Ajouter un élève</h3>
                 <form 
                   className="space-y-4"
                   onSubmit={async (e) => {
@@ -487,41 +485,41 @@ const StudentsManagement: React.FC = () => {
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">First Name</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Prénom (s)</label>
                       <input 
                         type="text" 
                         name="firstName"
                         className="input-field" 
-                        placeholder="Enter first name" 
+                        placeholder="Entrer le prénom" 
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Last Name</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Nom</label>
                       <input 
                         type="text" 
                         name="lastName"
                         className="input-field" 
-                        placeholder="Enter last name" 
+                        placeholder="Entrer le nom" 
                         required
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Student ID</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">No. Identifiant</label>
                     <input 
                       type="text" 
                       name="studentId"
                       className="input-field" 
-                      placeholder="Enter Student ID"
+                      placeholder="Entrer l'ID de l'élève"
                       // defaultValue={}
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Grade</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Classe</label>
                     <select name="grade" className="input-field" required>
                       {grades.map(grade => (
                         <option key={grade} value={grade}>{grade}</option>
@@ -535,51 +533,51 @@ const StudentsManagement: React.FC = () => {
                       type="email" 
                       name="email"
                       className="input-field" 
-                      placeholder="Enter student email" 
+                      placeholder="Entrer l'email de l'élève" 
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Mot de passe</label>
                     <input 
                       type="password" 
                       name="password"
                       className="input-field" 
-                      placeholder="Enter student password" 
+                      placeholder="Entrer le mot de passe de l'élève" 
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Numéro de tel.</label>
                     <input 
                       type="tel" 
                       name="phone"
                       className="input-field" 
-                      placeholder="Enter phone number" 
+                      placeholder="Entrer le numéro de téléphone" 
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Parent Name</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Nom du parent</label>
                     <input 
                       type="text" 
                       name="parentName"
                       className="input-field" 
-                      placeholder="Enter parent name" 
+                      placeholder="Entrer le nom du parent" 
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Parent Phone</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Contact du parent</label>
                     <input 
                       type="tel" 
                       name="parentPhone"
                       className="input-field" 
-                      placeholder="Enter parent phone" 
+                      placeholder="Entrer le téléphone du parent" 
                       required
                     />
                   </div>
@@ -590,7 +588,7 @@ const StudentsManagement: React.FC = () => {
                       onClick={() => setShowAddModal(false)}
                       className="btn-secondary"
                     >
-                      Cancel
+                      Annuler
                     </button>
                     <button 
                       type="submit" 
@@ -600,10 +598,10 @@ const StudentsManagement: React.FC = () => {
                       {submitting ? (
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Creating...</span>
+                          <span>Création...</span>
                         </div>
                       ) : (
-                        'Ajouter un Élève'
+                        'Ajouter un élève'
                       )}
                     </button>
                   </div>
@@ -618,7 +616,7 @@ const StudentsManagement: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" style={{margin: 0}}>
             <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-6">Edit Student</h3>
+                <h3 className="text-xl font-semibold text-white mb-6">Modifier un élève</h3>
                 <form 
                   className="space-y-4"
                   onSubmit={async (e) => {
@@ -660,23 +658,23 @@ const StudentsManagement: React.FC = () => {
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">First Name</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Prénom (s)</label>
                       <input 
                         type="text" 
                         name="firstName"
                         className="input-field" 
-                        placeholder="Enter first name" 
+                        placeholder="Entrer le prénom" 
                         defaultValue={selectedStudent.firstName}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Last Name</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Nom</label>
                       <input 
                         type="text" 
                         name="lastName"
                         className="input-field" 
-                        placeholder="Enter last name" 
+                        placeholder="Entrer le nom" 
                         defaultValue={selectedStudent.lastName}
                         required
                       />
@@ -685,20 +683,20 @@ const StudentsManagement: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Student ID</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">No. Identifiant</label>
                       <input 
                         type="text" 
                         name="studentId"
                         className="input-field" 
-                        placeholder="Enter student ID" 
+                        placeholder="Entrer l'ID de l'élève" 
                         defaultValue={selectedStudent.studentId}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Grade</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Classe</label>
                       <select name="grade" className="input-field" defaultValue={selectedStudent.grade}>
-                        <option value="">Select Grade</option>
+                        <option value="">Sélectionner la classe</option>
                         {grades.map(grade => (
                           <option key={grade} value={grade}>{grade}</option>
                         ))}
@@ -712,52 +710,52 @@ const StudentsManagement: React.FC = () => {
                       type="email" 
                       name="email"
                       className="input-field" 
-                      placeholder="Enter email address" 
+                      placeholder="Entrer l'adresse email" 
                       defaultValue={selectedStudent.email}
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Phone Number</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Numéro de tel.</label>
                     <input 
                       type="tel" 
                       name="phone"
                       className="input-field" 
-                      placeholder="Enter phone number" 
+                      placeholder="Entrer le numéro de téléphone" 
                       defaultValue={selectedStudent.phone}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Parent Name</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Nom du parent</label>
                     <input 
                       type="text" 
                       name="parentName"
                       className="input-field" 
-                      placeholder="Enter parent name" 
+                      placeholder="Entrer le nom du parent" 
                       defaultValue={selectedStudent.parentName}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Parent Phone</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Contact du parent</label>
                     <input 
                       type="tel" 
                       name="parentPhone"
                       className="input-field" 
-                      placeholder="Enter parent phone" 
+                      placeholder="Entrer le téléphone du parent" 
                       defaultValue={selectedStudent.parentPhone}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">New Password (Optional)</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Nouveau mot de passe (Optionnel)</label>
                     <input 
                       type="password" 
                       name="password"
                       className="input-field" 
-                      placeholder="Leave blank to keep current password" 
+                      placeholder="Laisser vide pour garder le mot de passe actuel" 
                     />
                   </div>
 
@@ -771,7 +769,7 @@ const StudentsManagement: React.FC = () => {
                       className="btn-secondary"
                       disabled={submitting}
                     >
-                      Cancel
+                      Annuler
                     </button>
                     <button 
                       type="submit" 
@@ -781,10 +779,10 @@ const StudentsManagement: React.FC = () => {
                       {submitting ? (
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Updating...</span>
+                          <span>Mise à jour...</span>
                         </div>
                       ) : (
-                        'Update Student'
+                        'Modifier l\'élève'
                       )}
                     </button>
                   </div>
@@ -800,7 +798,7 @@ const StudentsManagement: React.FC = () => {
             <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-semibold text-white font-poppins">Student Details</h3>
+                  <h3 className="text-xl font-semibold text-white font-poppins">Détails de l'élève</h3>
                   <button
                     onClick={() => {
                       setShowViewModal(false)
@@ -817,22 +815,22 @@ const StudentsManagement: React.FC = () => {
                 <div className="space-y-6">
                   {/* Student Information */}
                   <div className="bg-slate-700/50 rounded-xl p-4">
-                    <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Student Information</h4>
+                    <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Informations de l'élève</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">First Name</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Prénom (s)</label>
                         <p className="text-white font-poppins">{selectedStudent.firstName}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Last Name</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Nom</label>
                         <p className="text-white font-poppins">{selectedStudent.lastName}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Student ID</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">No. Identifiant</label>
                         <p className="text-white font-poppins">{selectedStudent.studentId}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Grade</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Classe</label>
                         <p className="text-white font-poppins">{selectedStudent.grade}</p>
                       </div>
                       <div>
@@ -840,7 +838,7 @@ const StudentsManagement: React.FC = () => {
                         <p className="text-white font-poppins">{selectedStudent.email}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Phone</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Numéro de tel.</label>
                         <p className="text-white font-poppins">{selectedStudent.phone}</p>
                       </div>
                     </div>
@@ -848,14 +846,14 @@ const StudentsManagement: React.FC = () => {
 
                   {/* Parent Information */}
                   <div className="bg-slate-700/50 rounded-xl p-4">
-                    <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Parent Information</h4>
+                    <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Informations du parent</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Parent Name</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Nom du parent</label>
                         <p className="text-white font-poppins">{selectedStudent.parentName}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Parent Phone</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Contact du parent</label>
                         <p className="text-white font-poppins">{selectedStudent.parentPhone}</p>
                       </div>
                     </div>
@@ -863,20 +861,20 @@ const StudentsManagement: React.FC = () => {
 
                   {/* Status Information */}
                   <div className="bg-slate-700/50 rounded-xl p-4">
-                    <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Status Information</h4>
+                    <h4 className="text-lg font-semibold text-white mb-4 font-poppins">Statut de l'élève</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Status</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Statut</label>
                         <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedStudent.status)}`}>
                           {selectedStudent.status}
                         </span>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Last Login</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Dernière connexion</label>
                         <p className="text-white font-poppins">{selectedStudent.lastLogin}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Total Downloads</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1 font-poppins">Total téléchargements</label>
                         <p className="text-white font-poppins">{selectedStudent.totalDownloads}</p>
                       </div>
                     </div>
@@ -891,7 +889,7 @@ const StudentsManagement: React.FC = () => {
                     }}
                     className="btn-secondary"
                   >
-                    Close
+                    Fermer
                   </button>
                   <button
                     onClick={() => {
@@ -900,7 +898,7 @@ const StudentsManagement: React.FC = () => {
                     }}
                     className="btn-primary"
                   >
-                    Edit Student
+                    Modifier l'élève
                   </button>
                 </div>
               </div>

@@ -104,11 +104,11 @@ const SchoolBilling: React.FC = () => {
   const formatPaymentStatus = (status: string) => {
     switch (status.toUpperCase()) {
       case 'SUCCESS':
-        return 'Paid'
+        return 'Payé'
       case 'PENDING':
-        return 'Pending'
+        return 'Attente de paiement'
       case 'FAILED':
-        return 'Failed'
+        return 'Échec de paiement'
       default:
         return status
     }
@@ -116,24 +116,24 @@ const SchoolBilling: React.FC = () => {
 
   // Helper functions
   const getStatusDisplay = () => {
-    if (!paymentData) return 'Loading...'
+    if (!paymentData) return 'Chargement...'
     
     if (paymentData.isActive) {
-      return 'Active'
+      return 'Actif'
     } else if (paymentData.isExpired) {
-      return 'Expired'
+      return 'Expiré'
     } else {
-      return 'Inactive'
+      return 'Inactif'
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active':
+      case 'Actif':
         return 'bg-green-900/30 text-green-400 border border-green-500/30'
-      case 'Expired':
+      case 'Expiré':
         return 'bg-red-900/30 text-red-400 border border-red-500/30'
-      case 'Inactive':
+      case 'Inactif':
         return 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30'
       default:
         return 'bg-slate-700 text-slate-300 border border-slate-600'
@@ -144,25 +144,25 @@ const SchoolBilling: React.FC = () => {
     if (!paymentData) return ''
     
     if (paymentData.isExpired) {
-      return 'Your plan has expired'
+      return 'Votre abonnement a expiré'
     } else if (paymentData.daysUntilExpiry !== null) {
       if (paymentData.daysUntilExpiry <= 7) {
-        return `Expires in ${paymentData.daysUntilExpiry} days`
+        return `Expire dans ${paymentData.daysUntilExpiry} jours`
       } else {
-        return `Expires on ${new Date(paymentData.planExpiryDate).toLocaleDateString()}`
+        return `Expire le ${new Date(paymentData.planExpiryDate).toLocaleDateString()}`
       }
     } else {
-      return 'No expiry date set'
+      return 'Aucune date d\'expiration définie'
     }
   }
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'Paid':
+      case 'Payé':
         return 'bg-green-900/30 text-green-400 border border-green-500/30'
-      case 'Pending':
+      case 'Attente de paiement':
         return 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30'
-      case 'Failed':
+      case 'Échec de paiement':
         return 'bg-red-900/30 text-red-400 border border-red-500/30'
       default:
         return 'bg-slate-700 text-slate-300 border border-slate-600'
@@ -181,7 +181,7 @@ const SchoolBilling: React.FC = () => {
           </div>
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-slate-400">Loading payment information...</span>
+            <span className="ml-3 text-slate-400">Chargement des informations de paiement...</span>
           </div>
         </div>
       </Layout>
@@ -237,7 +237,7 @@ const SchoolBilling: React.FC = () => {
       setError('')
       const num = typeof additionalStudents === 'string' ? parseInt(additionalStudents) : additionalStudents
       if (!num || isNaN(num) || num <= 0) {
-        setError('Please enter a valid number of additional students')
+        setError('Veuillez entrer un nombre valide d\'élèves supplémentaires')
         return
       }
 
@@ -248,11 +248,11 @@ const SchoolBilling: React.FC = () => {
         setShowStudentLimitModal(false)
         window.location.href = response.payment_url
       } else {
-        setError('Failed to initiate increase limit payment')
+        setError('Échec de l\'initiation du paiement de l\'augmentation de limite')
       }
     } catch (err) {
-      console.error('Error initiating increase limit payment:', err)
-      setError('Failed to initiate increase limit payment')
+      console.error('Échec de l\'initiation du paiement de l\'augmentation de limite:', err)
+      setError('Échec de l\'initiation du paiement de l\'augmentation de limite')
     } finally {
       setPaymentProcessing(false)
     }
@@ -273,7 +273,7 @@ const SchoolBilling: React.FC = () => {
               onClick={fetchPaymentStatus}
               className="text-xs text-red-300 hover:text-red-200 mt-1"
             >
-              Retry
+              Réessayer
             </button>
           </div>
         </div>
@@ -298,7 +298,7 @@ const SchoolBilling: React.FC = () => {
               onClick={() => setError('')}
               className="text-xs text-red-300 hover:text-red-200 mt-1"
             >
-              Dismiss
+              Ignorer
             </button>
           </div>
         )}
@@ -314,17 +314,17 @@ const SchoolBilling: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Standard Plan</h3>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Abonnement standard</h3>
               <p className="text-3xl font-bold text-blue-400">
                 {formatCurrency(paymentData?.paymentAmount || 0)}
               </p>
               <p className="text-sm text-slate-400 font-poppins mt-1">
-                {paymentData?.planMonthDuration} months duration
+                {paymentData?.planMonthDuration} mois de durée
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Plan Status</h3>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Durée de l'abonnement</h3>
               <div className="space-y-2">
                 <p className="text-sm text-slate-300 font-poppins">
                   {getExpiryMessage()}
@@ -338,30 +338,30 @@ const SchoolBilling: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Student Limit</h3>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Places disponibles</h3>
               <p className="text-lg font-semibold text-white font-poppins">
-                {paymentData?.studentLimit} Students
+                {paymentData?.studentLimit} élèves
               </p>
               <p className="text-sm text-slate-400 font-poppins">
-                Maximum capacity
+                Max
               </p>
               {paymentData?.isActive && (
                 <button
                   onClick={() => setShowStudentLimitModal(true)}
                   className="mt-2 px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200"
                 >
-                  Increase Limit
+                  Ajouter élève(s)
                 </button>
               )}
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Payment Status</h3>
+              <h3 className="text-lg font-medium text-white mb-2 font-poppins">Statut de paiement</h3>
               <p className="text-lg font-semibold text-white font-poppins">
-                {paymentData?.paymentStatus ? 'Paid' : 'Unpaid'}
+                {paymentData?.paymentStatus ? 'Payé' : 'Non payé'}
               </p>
               <p className="text-sm text-slate-400 font-poppins">
-                {paymentData?.paymentStatus ? 'Payment confirmed' : 'Payment pending'}
+                {paymentData?.paymentStatus ? 'Paiement confirmé' : 'Paiement en attente'}
               </p>
             </div>
           </div>
@@ -371,7 +371,7 @@ const SchoolBilling: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <span className="text-lg">🟠</span>
                 <div>
-                  <p className="font-medium text-white font-poppins">Payment Method</p>
+                  <p className="font-medium text-white font-poppins">Méthode de paiement</p>
                   <p className="text-sm text-slate-400 font-poppins">Orange Money</p>
                 </div>
               </div>
@@ -385,17 +385,17 @@ const SchoolBilling: React.FC = () => {
                     {paymentProcessing ? (
                       <div className="flex items-center space-x-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        <span>Processing...</span>
+                        <span>En cours...</span>
                       </div>
                     ) : (
-                      'Make Payment'
+                      'Faire un paiement'
                     )}
                   </button>
                 )}
                 {paymentData?.isActive && (
                   <div className="flex items-center space-x-2 text-green-400">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm font-medium">Payment Active</span>
+                    <span className="text-sm font-medium">Paiement actif</span>
                   </div>
                 )}
               </div>
@@ -406,28 +406,28 @@ const SchoolBilling: React.FC = () => {
 
         {/* Payment History */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-white mb-4 font-poppins">Payment History</h3>
+          <h3 className="text-lg font-semibold text-white mb-4 font-poppins">Historique de paiement</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-700">
               <thead className="bg-slate-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Date
+                    Date de paiement
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Amount
+                    Montant
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Method
+                    Méthode
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Status
+                    Statut
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Order ID
+                    ID de commande
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                    Transaction ID
+                    ID de transaction
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins hidden sm:table-cell">
                     Actions
@@ -465,7 +465,7 @@ const SchoolBilling: React.FC = () => {
                             className="sm:hidden px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-md w-full text-xs"
                             onClick={() => handleDownloadInvoice(payment)}
                           >
-                            Download PDF
+                            Télécharger le PDF
                           </button>
                         </div>
                       </td>
@@ -474,7 +474,7 @@ const SchoolBilling: React.FC = () => {
                           className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-md text-xs"
                           onClick={() => handleDownloadInvoice(payment)}
                         >
-                          Download PDF
+                          Télécharger le PDF
                         </button>
                       </td>
                     </tr>
@@ -482,7 +482,7 @@ const SchoolBilling: React.FC = () => {
                 ) : (
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-slate-400 font-poppins">
-                      No payment history found
+                      Aucun historique de paiement trouvé
                     </td>
                   </tr>
                 )}
@@ -496,15 +496,15 @@ const SchoolBilling: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" style={{margin: 0}}>
             <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Make Payment</h3>
+                <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Faire un paiement</h3>
                 <div className="space-y-4">
                   <div className="bg-slate-700 p-4 rounded-xl">
-                    <h4 className="font-medium text-white font-poppins">Standard Plan</h4>
-                    <p className="text-sm text-slate-400 font-poppins">Amount: {formatCurrency(paymentData?.paymentAmount || 0)}</p>
+                    <h4 className="font-medium text-white font-poppins">Abonnement standard</h4>
+                    <p className="text-sm text-slate-400 font-poppins">Montant: {formatCurrency(paymentData?.paymentAmount || 0)}</p>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Payment Method</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Méthode de paiement</label>
                     <div className="space-y-2">
                       <label className="flex items-center">
                         <input type="radio" name="paymentMethod" value="orange" className="mr-2 text-blue-600 focus:ring-blue-500" defaultChecked />
@@ -517,8 +517,8 @@ const SchoolBilling: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Phone Number</label>
-                    <input type="tel" className="input-field" placeholder="Enter phone number" />
+                    <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Numéro de téléphone</label>
+                    <input type="tel" className="input-field" placeholder="Entrer le numéro de téléphone" />
                   </div>
                   
                   <div className="flex justify-end space-x-3 pt-6">
@@ -527,7 +527,7 @@ const SchoolBilling: React.FC = () => {
                       onClick={() => setShowPaymentModal(false)}
                       className="btn-secondary"
                     >
-                      Cancel
+                      Annuler
                     </button>
                     <button 
                       className="btn-primary"
@@ -537,10 +537,10 @@ const SchoolBilling: React.FC = () => {
                       {paymentProcessing ? (
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Processing...</span>
+                          <span>En cours...</span>
                         </div>
                       ) : (
-                        'Process Payment'
+                        'Faire un paiement'
                       )}
                     </button>
                   </div>
@@ -556,15 +556,15 @@ const SchoolBilling: React.FC = () => {
   <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" style={{margin: 0}}>
     <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full">
       <div className="p-6">
-        <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Increase Student Limit</h3>
+        <h3 className="text-xl font-semibold text-white mb-6 font-poppins">Augmenter la limite d'élèves</h3>
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-300 font-poppins">Current Limit</label>
-            <p className="text-lg text-white font-poppins">{paymentData?.studentLimit} Students</p>
+            <label className="block text-sm font-medium text-slate-300 font-poppins">Limite actuelle</label>
+            <p className="text-lg text-white font-poppins">{paymentData?.studentLimit} élèves</p>
           </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300 font-poppins">Additional Students</label>
+                    <label className="block text-sm font-medium text-slate-300 font-poppins">Élèves supplémentaires</label>
                     <div className="flex items-center space-x-4">
                       <input
                         type="number"
@@ -590,14 +590,14 @@ const SchoolBilling: React.FC = () => {
                           }
                         }}
                         className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter number of students"
+                        placeholder="Entrer le nombre d'élèves"
                       />
                     </div>
                   </div>
 
           <div className="bg-slate-700/50 p-4 rounded-xl space-y-2">
             <div className="flex justify-between">
-              <span className="text-slate-300 font-poppins">New Total Limit</span>
+              <span className="text-slate-300 font-poppins">Nouvelle limite totale</span>
               <span className="text-white font-poppins">
                 {(() => {
                   const base = parseInt(paymentData?.studentLimit || '0')
@@ -605,11 +605,11 @@ const SchoolBilling: React.FC = () => {
                     ? parseInt(additionalStudents || '0')
                     : (additionalStudents || 0)
                   return base + add
-                })()} Students
-              </span>
+                })()} élèves
+              </span> 
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-300 font-poppins">Additional Cost</span>
+              <span className="text-slate-300 font-poppins">Coût supplémentaire</span>
               <span className="text-white font-poppins">{formatCurrency(calculateAdditionalCost())}</span>
             </div>
           </div>
@@ -620,13 +620,13 @@ const SchoolBilling: React.FC = () => {
               onClick={() => setShowStudentLimitModal(false)}
               className="btn-secondary"
             >
-              Cancel
+              Annuler
             </button>
             <button 
               className="btn-primary"
               onClick={handleStudentLimitIncrease}
             >
-              Proceed to Payment
+              Continuer au paiement
             </button>
           </div>
         </div>

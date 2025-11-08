@@ -143,11 +143,25 @@ const SuperAdminDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="card">
               <div className="flex items-center">
+                <div className="p-3 bg-cyan-600/20 rounded-xl">
+                  <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d’élèves (école)</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">
+                    {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="flex items-center">
                 <div className="p-3 bg-blue-600/20 rounded-xl">
                   <UserGroupIcon className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Places disponibles</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Places disponible (limite actuelle)</p>
                   <p className="text-2xl font-bold text-white font-poppins">{dashboardData.allowedStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
@@ -162,23 +176,8 @@ const SuperAdminDashboard: React.FC = () => {
                   <ChartBarIcon className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs (Actuellement actifs)</p>
                   <p className="text-2xl font-bold text-white font-poppins">{dashboardData.activeStudents.toLocaleString()}</p>
-                  <p className="text-sm text-slate-400 font-poppins">
-                    {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <div className="flex items-center">
-                <div className="p-3 bg-yellow-600/20 rounded-xl">
-                  <DocumentArrowDownIcon className="h-6 w-6 text-yellow-400" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Content Downloads</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.contentDownloads.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
                   </p>
@@ -195,20 +194,21 @@ const SuperAdminDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-slate-400 font-poppins">Adoption Rate</p>
                   <p className="text-2xl font-bold text-white font-poppins">{calculateAdoptionRate()}%</p>
                   <p className="text-sm text-slate-400 font-poppins">
-                    Places disponibles × 100% ÷ Nombre total d'élèves
+                    Across all schools
                   </p>
                 </div>
               </div>
             </div>
 
+            
             <div className="card">
               <div className="flex items-center">
-                <div className="p-3 bg-cyan-600/20 rounded-xl">
-                  <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+                <div className="p-3 bg-yellow-600/20 rounded-xl">
+                  <DocumentArrowDownIcon className="h-6 w-6 text-yellow-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Content Downloads</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{dashboardData.contentDownloads.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">
                     {selectedSchool === 'all' ? 'Across all schools' : 'This school'}
                   </p>

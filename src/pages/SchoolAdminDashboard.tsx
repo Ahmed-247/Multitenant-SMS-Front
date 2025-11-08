@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import {
   UserGroupIcon,
-  AcademicCapIcon,
+  AcademicCapIcon,ChartBarIcon,
   DocumentTextIcon,
   ClockIcon,
   PlayIcon
@@ -51,6 +51,12 @@ const SchoolAdminDashboard: React.FC = () => {
       if (response.success) {
         const d: any = response.data
         const school = d.school || {}
+
+        let adoptionRate = 0
+        if (school && school?.totalStudents > 0){
+           adoptionRate = Math.round((school?.allowedStudents / school?.totalStudents) * 100)
+        }
+
         const parsed: SchoolAdminStats = {
           allowedStudents: Number(school.allowedStudents ?? 0), // From StudentLimit
           totalStudents: Number(school.totalStudents ?? 0), // From TotalStudents
@@ -59,6 +65,7 @@ const SchoolAdminDashboard: React.FC = () => {
           contentDownloads: Number(school.contentDownloads ?? 0),
           sessions: Number(school.sessions ?? 0),
           duration: Number(school.duration ?? 0),
+          adoptionRate: Number(adoptionRate ?? 0),
         }
         setStats(parsed)
       } else {
@@ -94,15 +101,13 @@ const SchoolAdminDashboard: React.FC = () => {
     return parts.join(' ')
   }
 
-
-
   return (
     <Layout>
       <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-white font-poppins">Tableau de Bord de l'École</h1>
-          <p className="text-slate-400 mt-2 font-poppins">Bon retour, {user?.name}</p>
+          <p className="text-slate-400 mt-2 font-poppins">Bienvenue, {user?.name}</p>
         </div>
 
         {/* Error Display */}
@@ -130,14 +135,28 @@ const SchoolAdminDashboard: React.FC = () => {
 
         {/* Stats Grid */}
         {!loading && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-cyan-600/20 rounded-xl">
+                  <UserGroupIcon className="h-6 w-6 text-cyan-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d’élèves (école)</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
+                  <p className="text-sm text-slate-400 font-poppins">Depuis le profil de l'école</p>
+                </div>
+              </div>
+            </div>
+            
             <div className="card">
               <div className="flex items-center">
                 <div className="p-3 bg-blue-600/20 rounded-xl">
                   <UserGroupIcon className="h-6 w-6 text-blue-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Places disponibles</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Places disponible (limite actuelle)</p>
                   <p className="text-2xl font-bold text-white font-poppins">{stats.allowedStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Limite actuelle</p>
                 </div>
@@ -150,9 +169,22 @@ const SchoolAdminDashboard: React.FC = () => {
                   <AcademicCapIcon className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs</p>
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre d'élèves actifs (Actuellement actifs)</p>
                   <p className="text-2xl font-bold text-white font-poppins">{stats.activeStudents.toLocaleString()}</p>
                   <p className="text-sm text-slate-400 font-poppins">Actuellement actifs</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="flex items-center">
+                <div className="p-3 bg-purple-600/20 rounded-xl">
+                  <ChartBarIcon className="h-6 w-6 text-purple-400" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-slate-400 font-poppins">Adoption Rate</p>
+                  <p className="text-2xl font-bold text-white font-poppins">{stats.adoptionRate?.toLocaleString()}%</p>
+                  
                 </div>
               </div>
             </div>
@@ -170,18 +202,7 @@ const SchoolAdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="card">
-              <div className="flex items-center">
-                <div className="p-3 bg-cyan-600/20 rounded-xl">
-                  <UserGroupIcon className="h-6 w-6 text-cyan-400" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-slate-400 font-poppins">Nombre total d'élèves</p>
-                  <p className="text-2xl font-bold text-white font-poppins">{stats.totalStudents.toLocaleString()}</p>
-                  <p className="text-sm text-slate-400 font-poppins">Depuis le profil de l'école</p>
-                </div>
-              </div>
-            </div>
+            
 
             <div className="card">
               <div className="flex items-center">

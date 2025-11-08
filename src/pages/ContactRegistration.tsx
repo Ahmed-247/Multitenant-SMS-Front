@@ -25,7 +25,7 @@ const ContactRegistration: React.FC = () => {
     setContactSuccess(false)
     
     if (!contactForm.SchoolName || !contactForm.SchoolEmail) {
-      setContactError('School Name and School Email are required')
+      setContactError('Le nom de l\'école et l\'email de l\'école sont requis')
       return
     }
     
@@ -69,16 +69,16 @@ const ContactRegistration: React.FC = () => {
             <div className="mx-auto h-20 w-20 flex items-center justify-center rounded-full bg-green-600/20 mb-6">
               <CheckCircleIcon className="h-12 w-12 text-green-400" />
             </div>
-            <h2 className="text-3xl font-bold text-white font-poppins mb-4">Thank You!</h2>
+            <h2 className="text-3xl font-bold text-white font-poppins mb-4">Merci !</h2>
             <p className="text-slate-300 font-poppins mb-8 text-lg">
-              We have received your information. Our team will contact you soon for onboarding.
+              Nous avons reçu vos informations. Notre équipe vous contactera bientôt pour l'intégration.
             </p>
             <button
               onClick={() => navigate('/login')}
               className="btn-primary inline-flex items-center gap-2"
             >
               <ArrowLeftIcon className="h-5 w-5" />
-              Back to Login
+              Retour à la connexion
             </button>
           </div>
         </div>
@@ -107,14 +107,14 @@ const ContactRegistration: React.FC = () => {
           <form onSubmit={handleContactSubmit} className="space-y-5">
             <div>
               <label htmlFor="schoolName" className="block text-sm font-medium text-slate-300 mb-2 font-poppins">
-                School Name <span className="text-red-400">*</span>
+                Nom de l'École <span className="text-red-400">*</span>
               </label>
               <input
                 id="schoolName"
                 type="text"
                 required
                 className="input-field"
-                placeholder="Enter school name"
+                placeholder="Entrer le nom de l'école"
                 value={contactForm.SchoolName}
                 onChange={(e) => setContactForm({ ...contactForm, SchoolName: e.target.value })}
                 disabled={contactLoading}
@@ -123,14 +123,14 @@ const ContactRegistration: React.FC = () => {
 
             <div>
               <label htmlFor="schoolEmail" className="block text-sm font-medium text-slate-300 mb-2 font-poppins">
-                School Email <span className="text-red-400">*</span>
+                Email de l'école <span className="text-red-400">*</span>
               </label>
               <input
                 id="schoolEmail"
                 type="email"
                 required
                 className="input-field"
-                placeholder="Enter school email"
+                placeholder="Entrer l'email de l'école"
                 value={contactForm.SchoolEmail}
                 onChange={(e) => setContactForm({ ...contactForm, SchoolEmail: e.target.value })}
                 disabled={contactLoading}
@@ -139,13 +139,13 @@ const ContactRegistration: React.FC = () => {
 
             <div>
               <label htmlFor="schoolAddress" className="block text-sm font-medium text-slate-300 mb-2 font-poppins">
-                School Address
+                Adresse
               </label>
               <input
                 id="schoolAddress"
                 type="text"
                 className="input-field"
-                placeholder="Enter school address"
+                placeholder="Entrer l'adresse de l'école"
                 value={contactForm.SchoolAddress}
                 onChange={(e) => setContactForm({ ...contactForm, SchoolAddress: e.target.value })}
                 disabled={contactLoading}
@@ -154,13 +154,13 @@ const ContactRegistration: React.FC = () => {
 
             <div>
               <label htmlFor="schoolPhone" className="block text-sm font-medium text-slate-300 mb-2 font-poppins">
-                School Phone
+                Numéro de Téléphone
               </label>
               <input
                 id="schoolPhone"
                 type="tel"
                 className="input-field"
-                placeholder="Enter school phone"
+                placeholder="Entrer le numéro de téléphone de l'école"
                 value={contactForm.SchoolPhone}
                 onChange={(e) => setContactForm({ ...contactForm, SchoolPhone: e.target.value })}
                 disabled={contactLoading}
@@ -169,13 +169,13 @@ const ContactRegistration: React.FC = () => {
 
             <div>
               <label htmlFor="contactPersonName" className="block text-sm font-medium text-slate-300 mb-2 font-poppins">
-                Contact Person Name
+                Nom de la personne de contact
               </label>
               <input
                 id="contactPersonName"
                 type="text"
                 className="input-field"
-                placeholder="Enter contact person name"
+                placeholder="Entrer le nom de la personne de contact"
                 value={contactForm.ContactPersonName}
                 onChange={(e) => setContactForm({ ...contactForm, ContactPersonName: e.target.value })}
                 disabled={contactLoading}
@@ -190,7 +190,7 @@ const ContactRegistration: React.FC = () => {
                 id="message"
                 rows={4}
                 className="input-field resize-none"
-                placeholder="Enter your message"
+                placeholder="Entrer votre message"
                 value={contactForm.Message}
                 onChange={(e) => setContactForm({ ...contactForm, Message: e.target.value })}
                 disabled={contactLoading}
@@ -210,7 +210,7 @@ const ContactRegistration: React.FC = () => {
                 disabled={contactLoading}
                 className="btn-secondary flex-1 order-2 sm:order-1"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 type="submit"
@@ -220,10 +220,10 @@ const ContactRegistration: React.FC = () => {
                 {contactLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>Submitting...</span>
+                    <span>Envoi en cours...</span>
                   </div>
                 ) : (
-                  'Submit'
+                  'Soumettre'
                 )}
               </button>
             </div>

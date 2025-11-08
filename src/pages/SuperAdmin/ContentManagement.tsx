@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import {
   MagnifyingGlassIcon,
-  // VideoCameraIcon,
-  // PhotoIcon,
-  // DocumentTextIcon
+  PlusIcon,
 } from '@heroicons/react/24/outline'
+import ebookService, { EbookContent } from '../../services/SuperAdmin/ebook.service'
 
 interface ContentItem {
   id: string
@@ -21,12 +20,6 @@ interface ContentItem {
   assignedSchools: string[]
 }
 
-interface EBookItem {
-  id: string
-  title: string
-  description: string
-}
-
 const ContentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'content' | 'pdf'>('content')
   const [searchTerm, setSearchTerm] = useState('')
@@ -35,33 +28,38 @@ const ContentManagement: React.FC = () => {
   const [selectedGrade, setSelectedGrade] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
   const [showUploadModal, setShowUploadModal] = useState(false)
-  // Prevent body scrolling when modals are open
+  const [ebooks, setEbooks] = useState<EbookContent[]>([])
+  const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
   useEffect(() => {
     if (showUploadModal) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
     }
-
-    // Cleanup function to reset overflow when component unmounts
     return () => {
       document.body.style.overflow = 'unset'
     }
   }, [showUploadModal])
 
-  // Mock eBook data
-  const [ebooks] = useState<EBookItem[]>([
-    {
-      id: '1',
-      title: 'Mathematics Fundamentals',
-      description: 'A comprehensive guide to fundamental mathematics concepts covering algebra, geometry, and basic calculus principles for students at all levels.'
-    },
-    {
-      id: '2',
-      title: 'Introduction to Physics',
-      description: 'An introductory textbook exploring the fundamental principles of physics including mechanics, thermodynamics, and modern physics applications.'
+  useEffect(() => {
+    fetchEbooks()
+  }, [])
+
+  const fetchEbooks = async () => {
+    try {
+      setLoading(true)
+      const response = await ebookService.getEbookContent()
+      if (response.success && response.data) {
+        setEbooks(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching ebooks:', error)
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
 
   // Hardcoded data based on the table structure
   const [content, setContent] = useState<ContentItem[]>([
@@ -261,9 +259,112 @@ const ContentManagement: React.FC = () => {
   )
 
   const filteredEbooks = ebooks.filter(ebook =>
-    ebook.title.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ||
-    ebook.description.toLowerCase().includes(ebookSearchTerm.toLowerCase())
+    (ebook.titre?.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ?? false) ||
+    (ebook.auteur?.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ?? false) ||
+    (ebook.description?.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ?? false)
   )
+
+  const parseCSV = (csvText: string): Array<{ no?: string; titre?: string; auteur?: string; description?: string }> => {
+    const rows: string[][] = []
+    let currentRow: string[] = []
+    let currentField = ''
+    let inQuotes = false
+    
+    for (let i = 0; i < csvText.length; i++) {
+      const char = csvText[i]
+      const nextChar = csvText[i + 1]
+      
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentField += '"'
+          i++
+        } else {
+          inQuotes = !inQuotes
+        }
+      } else if (char === ',' && !inQuotes) {
+        currentRow.push(currentField.trim())
+        currentField = ''
+      } else if ((char === '\n' || char === '\r') && !inQuotes) {
+        if (char === '\r' && nextChar === '\n') {
+          i++
+        }
+        currentRow.push(currentField.trim())
+        currentField = ''
+        if (currentRow.length > 0 && currentRow.some(field => field.length > 0)) {
+          rows.push(currentRow)
+        }
+        currentRow = []
+      } else {
+        currentField += char
+      }
+    }
+    
+    if (currentField.trim() || currentRow.length > 0) {
+      currentRow.push(currentField.trim())
+      if (currentRow.some(field => field.length > 0)) {
+        rows.push(currentRow)
+      }
+    }
+    
+    if (rows.length < 2) return []
+    
+    const headers = rows[0].map(h => h.trim())
+    const data: Array<{ no?: string; titre?: string; auteur?: string; description?: string }> = []
+    
+    const noIndex = headers.indexOf('No')
+    const titreIndex = headers.indexOf('Titre')
+    const auteurIndex = headers.indexOf('Auteur')
+    const descriptionIndex = headers.indexOf('Description')
+    
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i]
+      if (row.length === 0) continue
+      
+      data.push({
+        no: noIndex >= 0 && row[noIndex] ? row[noIndex] : undefined,
+        titre: titreIndex >= 0 && row[titreIndex] ? row[titreIndex] : undefined,
+        auteur: auteurIndex >= 0 && row[auteurIndex] ? row[auteurIndex] : undefined,
+        description: descriptionIndex >= 0 && row[descriptionIndex] ? row[descriptionIndex] : undefined,
+      })
+    }
+    
+    return data
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    
+    try {
+      setUploading(true)
+      const text = await file.text()
+      const parsedData = parseCSV(text)
+      
+      if (parsedData.length === 0) {
+        alert('CSV file is empty or invalid. Please ensure the file contains data.')
+        return
+      }
+      
+      const filteredData = parsedData.filter(item => 
+        item.titre || item.auteur || item.description
+      )
+      
+      if (filteredData.length === 0) {
+        alert('No valid data found in CSV file.')
+        return
+      }
+      
+      await ebookService.bulkUploadEbookContent({ content: filteredData })
+      await fetchEbooks()
+      alert('EBooks uploaded successfully')
+      event.target.value = ''
+    } catch (error) {
+      console.error('Error uploading ebooks:', error)
+      alert('Error uploading eBooks. Please try again.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   // const getTypeIcon = (type: string) => {
   //   switch (type) {
@@ -291,13 +392,19 @@ const ContentManagement: React.FC = () => {
             <h1 className="text-3xl font-bold text-white font-poppins">Content Management</h1>
             <p className="text-slate-400 mt-2 font-poppins">Manage educational content and distribution to schools</p>
           </div>
-          {/* <button
-            onClick={() => setShowUploadModal(true)}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <PlusIcon className="h-5 w-5" />
-            <span>Upload Content</span>
-          </button> */}
+          {activeTab === 'pdf' && (
+            <label className="btn-primary flex items-center space-x-2 cursor-pointer">
+              <PlusIcon className="h-5 w-5" />
+              <span>{uploading ? 'Uploading...' : 'Upload CSV'}</span>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+          )}
         </div>
 
         {/* Tab Navigation */}
@@ -448,30 +555,54 @@ const ContentManagement: React.FC = () => {
             {/* eBook Table */}
             <div className="card">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-700">
-                  <thead className="bg-slate-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Title
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Description
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-slate-800 divide-y divide-slate-700">
-                    {filteredEbooks.map((ebook) => (
-                      <tr key={ebook.id} className="hover:bg-slate-700 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-white font-poppins">{ebook.title}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-white font-poppins">{ebook.description}</div>
-                        </td>
+                {loading ? (
+                  <div className="text-center py-8 text-slate-400 font-poppins">Loading...</div>
+                ) : (
+                  <table className="min-w-full divide-y divide-slate-700">
+                    <thead className="bg-slate-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          No
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Title
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Author
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Description
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-slate-800 divide-y divide-slate-700">
+                      {filteredEbooks.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-4 text-center text-slate-400 font-poppins">
+                            No eBooks found
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredEbooks.map((ebook) => (
+                          <tr key={ebook.id} className="hover:bg-slate-700 transition-colors duration-200">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-white font-poppins">{ebook.no || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-white font-poppins">{ebook.titre || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-white font-poppins">{ebook.auteur || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-white font-poppins">{ebook.description || '-'}</div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </>

@@ -173,7 +173,7 @@ const SchoolProfile: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-white mb-2 font-poppins">{schoolData.SchoolName}</h2>
-                <p className="text-slate-400 font-poppins">School Information and Settings</p>
+                <p className="text-slate-400 font-poppins">Informations et configurations</p>
               </div>
             </div>
           </div>
@@ -188,8 +188,8 @@ const SchoolProfile: React.FC = () => {
                   <BuildingOfficeIcon className="h-8 w-8 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white font-poppins">School Information</h3>
-                  <p className="text-slate-400 font-poppins">Manage your school details</p>
+                  <h3 className="text-2xl font-bold text-white font-poppins">Informations</h3>
+                  <p className="text-slate-400 font-poppins">Gérer les informations de votre école</p>
                 </div>
               </div>
               
@@ -270,7 +270,7 @@ const SchoolProfile: React.FC = () => {
                   <div className="bg-slate-700/30 p-6 rounded-xl border border-slate-600">
                     <h4 className="text-lg font-semibold text-white mb-4 font-poppins flex items-center">
                       <div className="w-2 h-2 bg-slate-400 rounded-full mr-3"></div>
-                      System Information
+                        Informations administrateurs
                     </h4>
                     <div className="space-y-4">
                       <div>
@@ -279,13 +279,13 @@ const SchoolProfile: React.FC = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Name</label>
-                        <div className="text-white font-poppins bg-slate-600 p-3 rounded-lg">{schoolData.AdminName || 'Not assigned'}</div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Nom de l'administrateur</label>
+                        <div className="text-white font-poppins bg-slate-600 p-3 rounded-lg">{schoolData.AdminName || 'Non assigné'}</div>
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Admin Email</label>
-                        <div className="text-white font-poppins bg-slate-600 p-3 rounded-lg">{schoolData.AdminEmail || 'Not assigned'}</div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2 font-poppins">Email de l'administrateur</label>
+                        <div className="text-white font-poppins bg-slate-600 p-3 rounded-lg">{schoolData.AdminEmail || 'Non assigné'}</div>
                       </div>
                     </div>
                   </div>

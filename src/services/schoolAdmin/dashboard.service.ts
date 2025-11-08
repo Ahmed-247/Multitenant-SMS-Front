@@ -11,6 +11,7 @@ export interface SchoolAdminStats {
   contentDownloads?: number;
   sessions?: number;
   duration?: number;
+  adoptionRate?: number;
 }
 
 export interface SchoolAdminStatsResponse {

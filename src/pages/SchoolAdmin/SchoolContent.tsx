@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import {
   MagnifyingGlassIcon,
-  // VideoCameraIcon,
-  // DocumentTextIcon
 } from '@heroicons/react/24/outline'
+import ebookService, { EbookContent } from '../../services/SuperAdmin/ebook.service'
 
 interface ContentItem {
   id: string
@@ -20,12 +19,6 @@ interface ContentItem {
   assignedSchools: string[]
 }
 
-interface EBookItem {
-  id: string
-  title: string
-  description: string
-}
-
 const SchoolContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'content' | 'pdf'>('content')
   const [searchTerm, setSearchTerm] = useState('')
@@ -33,20 +26,26 @@ const SchoolContent: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
+  const [ebooks, setEbooks] = useState<EbookContent[]>([])
+  const [loading, setLoading] = useState(false)
 
-  // Mock eBook data
-  const [ebooks] = useState<EBookItem[]>([
-    {
-      id: '1',
-      title: 'Mathematics Fundamentals',
-      description: 'A comprehensive guide to fundamental mathematics concepts covering algebra, geometry, and basic calculus principles for students at all levels.'
-    },
-    {
-      id: '2',
-      title: 'Introduction to Physics',
-      description: 'An introductory textbook exploring the fundamental principles of physics including mechanics, thermodynamics, and modern physics applications.'
+  useEffect(() => {
+    fetchEbooks()
+  }, [])
+
+  const fetchEbooks = async () => {
+    try {
+      setLoading(true)
+      const response = await ebookService.getEbookContent()
+      if (response.success && response.data) {
+        setEbooks(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching ebooks:', error)
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
 
   // Hardcoded data based on the table structure
   const [content] = useState<ContentItem[]>([
@@ -246,8 +245,9 @@ const SchoolContent: React.FC = () => {
   )
 
   const filteredEbooks = ebooks.filter(ebook =>
-    ebook.title.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ||
-    ebook.description.toLowerCase().includes(ebookSearchTerm.toLowerCase())
+    (ebook.titre?.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ?? false) ||
+    (ebook.auteur?.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ?? false) ||
+    (ebook.description?.toLowerCase().includes(ebookSearchTerm.toLowerCase()) ?? false)
   )
 
   // const getTypeIcon = (type: string) => {
@@ -370,13 +370,13 @@ const SchoolContent: React.FC = () => {
                         Section
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Grade / Level
+                        Niveau / Classe
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Courses
+                        Cours
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Content Format
+                        Format de contenu
                       </th>
                     </tr>
                   </thead>
@@ -424,30 +424,54 @@ const SchoolContent: React.FC = () => {
             {/* eBook Table */}
             <div className="card">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-700">
-                  <thead className="bg-slate-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Titre
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
-                        Description
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-slate-800 divide-y divide-slate-700">
-                    {filteredEbooks.map((ebook) => (
-                      <tr key={ebook.id} className="hover:bg-slate-700 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-white font-poppins">{ebook.title}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-white font-poppins">{ebook.description}</div>
-                        </td>
+                {loading ? (
+                  <div className="text-center py-8 text-slate-400 font-poppins">Chargement...</div>
+                ) : (
+                  <table className="min-w-full divide-y divide-slate-700">
+                    <thead className="bg-slate-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          N°
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Titre
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Auteur
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider font-poppins">
+                          Description
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-slate-800 divide-y divide-slate-700">
+                      {filteredEbooks.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-4 text-center text-slate-400 font-poppins">
+                            Aucun eBook trouvé
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredEbooks.map((ebook) => (
+                          <tr key={ebook.id} className="hover:bg-slate-700 transition-colors duration-200">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-white font-poppins">{ebook.no || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-white font-poppins">{ebook.titre || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-white font-poppins">{ebook.auteur || '-'}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-white font-poppins">{ebook.description || '-'}</div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </>
